@@ -1,0 +1,36 @@
+services:
+  alghazaly:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: alghazaly
+    restart: unless-stopped
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_KEY=${APP_KEY}
+      - APP_URL=https://alghazaly.erri.online
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql_shared
+      - DB_PORT=3306
+      - DB_DATABASE=al_ghazaly
+      - DB_USERNAME=erri
+      - DB_PASSWORD=${DB_PASSWORD:-Kyouko407}
+      - FRONTEND_URL=https://alghazaly.erri.online
+      - MIDTRANS_SERVER_KEY=${MIDTRANS_SERVER_KEY}
+      - MIDTRANS_CLIENT_KEY=${MIDTRANS_CLIENT_KEY}
+      - MIDTRANS_IS_PRODUCTION=${MIDTRANS_IS_PRODUCTION:-false}
+    volumes:
+      - alghazaly_storage:/var/www/html/storage/app/public
+    ports:
+      - "9004:80"
+    networks:
+      - webnet
+
+volumes:
+  alghazaly_storage:
+
+networks:
+  webnet:
+    external: true
+    name: webnet
