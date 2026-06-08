@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('pages', function (Blueprint $table) {
@@ -16,15 +19,21 @@ return new class extends Migration
             $table->string('thumbnail', 255)->nullable();
             $table->tinyInteger('is_published')->default(0);
             $table->unsignedSmallInteger('order')->default(0);
+            $table->unsignedBigInteger('author_id')->nullable();
             $table->string('meta_title', 160)->nullable();
             $table->string('meta_description', 255)->nullable();
             $table->timestamps();
 
             $table->unique('slug', 'idx_unique_page_slug');
             $table->index('is_published', 'idx_is_published');
+
+            $table->foreign('author_id')->references('id')->on('users')->nullOnDelete();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('pages');

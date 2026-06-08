@@ -28,6 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // ─── Public endpoints ─────────────────────────────────────────────────────────
 Route::get('settings', [SettingController::class, 'index']);
+Route::get('profile', [SettingController::class, 'profile']);
 Route::get('pages', [PageController::class, 'index']);
 Route::get('pages/{slug}', [PageController::class, 'show']);
 
@@ -48,39 +49,48 @@ Route::post('forms/{slug}/submit', [FormController::class, 'submit']);
 // PPDB — publik
 Route::post('registrations', [RegistrationController::class, 'store']);
 Route::post('registrations/{id}/documents', [RegistrationController::class, 'uploadDocuments']);
+Route::post('registrations/{id}/payment', [RegistrationController::class, 'createPayment']);
 Route::get('registrations/{number}/status', [RegistrationController::class, 'checkStatus']);
 
 // ─── Admin endpoints (auth + sanctum) ────────────────────────────────────────
-Route::middleware('auth:sanctum')->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth:sanctum', 'role:super_admin,admin,operator_ppdb'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('dashboard', [Admin\DashboardController::class, 'index']);
 
-    Route::apiResource('posts', Admin\PostController::class);
-    Route::apiResource('categories', Admin\CategoryController::class)->except('show');
-    Route::apiResource('pages', Admin\PageController::class);
-    Route::apiResource('teachers', Admin\TeacherController::class);
-    Route::apiResource('albums', Admin\AlbumController::class);
-    Route::apiResource('testimonials', Admin\TestimonialController::class)->except('show');
-    Route::apiResource('alumni', Admin\AlumniController::class)->except('show');
+    Route::middleware('role:super_admin,admin')->group(function () {
+        Route::apiResource('posts', Admin\PostController::class);
+        Route::apiResource('categories', Admin\CategoryController::class)->except('show');
+        Route::apiResource('pages', Admin\PageController::class);
+        Route::apiResource('teachers', Admin\TeacherController::class);
+        Route::apiResource('albums', Admin\AlbumController::class);
+        Route::apiResource('testimonials', Admin\TestimonialController::class)->except('show');
+        Route::apiResource('alumni', Admin\AlumniController::class)->except('show');
 
-    Route::post('medias', [Admin\MediaController::class, 'store']);
-    Route::get('medias', [Admin\MediaController::class, 'index']);
-    Route::delete('medias/{id}', [Admin\MediaController::class, 'destroy']);
+        Route::post('medias', [Admin\MediaController::class, 'store']);
+        Route::get('medias', [Admin\MediaController::class, 'index']);
+        Route::delete('medias/{id}', [Admin\MediaController::class, 'destroy']);
+
+        Route::get('settings', [Admin\SettingController::class, 'index']);
+        Route::put('settings', [Admin\SettingController::class, 'update']);
+    });
 
     Route::get('registrations', [Admin\RegistrationController::class, 'index']);
     Route::get('registrations/{id}', [Admin\RegistrationController::class, 'show']);
     Route::patch('registrations/{id}/status', [Admin\RegistrationController::class, 'updateStatus']);
+    Route::patch('registrations/{id}/documents/{documentId}', [Admin\RegistrationController::class, 'updateDocumentStatus']);
 
     Route::get('payments', [Admin\PaymentController::class, 'index']);
     Route::get('payments/{id}', [Admin\PaymentController::class, 'show']);
+    Route::patch('payments/{id}', [Admin\PaymentController::class, 'update']);
 
-    Route::get('messages', [Admin\FormSubmissionController::class, 'index']);
-    Route::get('messages/{id}', [Admin\FormSubmissionController::class, 'show']);
-    Route::delete('messages/{id}', [Admin\FormSubmissionController::class, 'destroy']);
+    Route::middleware('role:super_admin,admin')->group(function () {
+        Route::get('messages', [Admin\FormSubmissionController::class, 'index']);
+        Route::get('messages/{id}', [Admin\FormSubmissionController::class, 'show']);
+        Route::delete('messages/{id}', [Admin\FormSubmissionController::class, 'destroy']);
+    });
 
-    Route::apiResource('users', Admin\UserController::class);
-    Route::get('roles', [Admin\UserController::class, 'roles']);
-
-    Route::get('settings', [Admin\SettingController::class, 'index']);
-    Route::put('settings', [Admin\SettingController::class, 'update']);
+    Route::middleware('role:super_admin')->group(function () {
+        Route::apiResource('users', Admin\UserController::class);
+        Route::get('roles', [Admin\UserController::class, 'roles']);
+    });
 });

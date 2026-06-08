@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Alumni extends Model
+class Alumnus extends Model
 {
     protected $table = 'alumni';
-    protected $primaryKey = 'alumni_id';
-    public $timestamps = false;
+    protected $primaryKey = 'alumnus_id';
 
     protected $fillable = [
         'name',
@@ -22,6 +21,5 @@ class Alumni extends Model
 
     protected $casts = [
         'is_published' => 'boolean',
-        'created_at'   => 'datetime',
     ];
 }

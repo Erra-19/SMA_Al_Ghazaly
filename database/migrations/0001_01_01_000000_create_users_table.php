@@ -6,25 +6,32 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
-            $table->id('role_id');
-            $table->string('name', 50);
-            $table->text('description')->nullable();
-        });
+		Schema::create('roles', function (Blueprint $table) {
+			$table->id('role_id');
+			$table->string('name',50)->unique();
+			$table->text('description')->nullable();
+			$table->timestamps();
+		});
 
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
-            $table->string('email', 100);
-            $table->string('password', 255);
-            $table->unsignedBigInteger('role_id')->nullable();
-            $table->tinyInteger('is_active')->default(1);
+            $table->string('nisn',20)->unique()->nullable();
+			$table->string('nip')->unique()->nullable();
+            $table->string('email', 100)->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password',255);
+			$table->unsignedBigInteger('role_id')->nullable();
+			$table->boolean('is_active')->default(true);
+            $table->rememberToken();
             $table->timestamps();
 
-            $table->unique('email', 'idx_unique_user_email');
-            $table->index('role_id', 'idx_role_id');
+			$table->index('role_id', 'idx_role_id');
 
             $table->foreign('role_id')->references('role_id')->on('roles')->nullOnDelete();
         });
@@ -45,11 +52,14 @@ return new class extends Migration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('sessions');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('users');
-        Schema::dropIfExists('roles');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('sessions');
+	Schema::dropIfExists('roles');
     }
 };

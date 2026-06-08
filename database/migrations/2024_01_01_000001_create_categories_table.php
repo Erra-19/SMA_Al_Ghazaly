@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('category_name', 100);
             $table->string('slug', 120);
             $table->unsignedBigInteger('parent_id')->nullable();
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps();
 
             $table->unique('slug', 'idx_unique_category_slug');
             $table->index('parent_id', 'idx_parent_id');

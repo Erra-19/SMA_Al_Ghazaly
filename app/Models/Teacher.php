@@ -9,13 +9,16 @@ class Teacher extends Model
     protected $primaryKey = 'teacher_id';
 
     protected $fillable = [
+		'nip',
         'name',
         'photo',
         'position',
         'subject',
+		'email',
         'bio',
-        'order',
+        'phone',
         'is_active',
+        'order',
     ];
 
     protected $casts = [

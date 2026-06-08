@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Alumni;
+use App\Models\Alumnus;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -11,7 +11,7 @@ class AlumniController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $alumni = Alumni::when($request->year, fn ($q) => $q->where('graduation_year', $request->year))
+        $alumni = Alumnus::when($request->year, fn ($q) => $q->where('graduation_year', $request->year))
             ->orderByDesc('graduation_year')
             ->paginate(15);
 
@@ -30,12 +30,12 @@ class AlumniController extends Controller
             'is_published'        => 'boolean',
         ]);
 
-        return response()->json(Alumni::create($request->only(['name', 'graduation_year', 'photo', 'current_institution', 'major', 'achievement', 'is_published'])), 201);
+        return response()->json(Alumnus::create($request->only(['name', 'graduation_year', 'photo', 'current_institution', 'major', 'achievement', 'is_published'])), 201);
     }
 
     public function update(Request $request, int $id): JsonResponse
     {
-        $alumni = Alumni::findOrFail($id);
+        $alumni = Alumnus::findOrFail($id);
 
         $request->validate([
             'name'                => 'sometimes|string|max:100',
@@ -54,7 +54,7 @@ class AlumniController extends Controller
 
     public function destroy(int $id): JsonResponse
     {
-        Alumni::findOrFail($id)->delete();
+        Alumnus::findOrFail($id)->delete();
         return response()->json(['message' => 'Data alumni dihapus.']);
     }
 }

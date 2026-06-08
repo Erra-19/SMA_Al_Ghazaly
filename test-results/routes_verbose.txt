@@ -1,0 +1,310 @@
+
+  GET|HEAD        / ......................................... routes/web.php:5
+                  ⇂ web
+  GET|HEAD        api/admin/albums admin.albums.index › Api\Admin\AlbumController@index
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  POST            api/admin/albums admin.albums.store › Api\Admin\AlbumController@store
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  GET|HEAD        api/admin/albums/{album} admin.albums.show › Api\Admin\AlbumController@show
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  PUT|PATCH       api/admin/albums/{album} admin.albums.update › Api\Admin\AlbumController@update
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  DELETE          api/admin/albums/{album} admin.albums.destroy › Api\Admin\AlbumController@destroy
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  GET|HEAD        api/admin/alumni admin.alumni.index › Api\Admin\AlumniController@index
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  POST            api/admin/alumni admin.alumni.store › Api\Admin\AlumniController@store
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  PUT|PATCH       api/admin/alumni/{alumnus} admin.alumni.update › Api\Admin\AlumniController@update
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  DELETE          api/admin/alumni/{alumnus} admin.alumni.destroy › Api\Admin\AlumniController@destroy
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  GET|HEAD        api/admin/categories admin.categories.index › Api\Admin\CategoryController@index
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  POST            api/admin/categories admin.categories.store › Api\Admin\CategoryController@store
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  PUT|PATCH       api/admin/categories/{category} admin.categories.update › Api\Admin\CategoryController@update
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  DELETE          api/admin/categories/{category} admin.categories.destroy › Api\Admin\CategoryController@destroy
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  GET|HEAD        api/admin/dashboard admin. › Api\Admin\DashboardController@index
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+  POST            api/admin/medias .. admin. › Api\Admin\MediaController@store
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  GET|HEAD        api/admin/medias .. admin. › Api\Admin\MediaController@index
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  DELETE          api/admin/medias/{id} admin. › Api\Admin\MediaController@destroy
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  GET|HEAD        api/admin/messages admin. › Api\Admin\FormSubmissionController@index
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  GET|HEAD        api/admin/messages/{id} admin. › Api\Admin\FormSubmissionController@show
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  DELETE          api/admin/messages/{id} admin. › Api\Admin\FormSubmissionController@destroy
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  GET|HEAD        api/admin/pages admin.pages.index › Api\Admin\PageController@index
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  POST            api/admin/pages admin.pages.store › Api\Admin\PageController@store
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  GET|HEAD        api/admin/pages/{page} admin.pages.show › Api\Admin\PageController@show
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  PUT|PATCH       api/admin/pages/{page} admin.pages.update › Api\Admin\PageController@update
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  DELETE          api/admin/pages/{page} admin.pages.destroy › Api\Admin\PageController@destroy
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  GET|HEAD        api/admin/payments admin. › Api\Admin\PaymentController@index
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+  GET|HEAD        api/admin/payments/{id} admin. › Api\Admin\PaymentController@show
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+  GET|HEAD        api/admin/posts admin.posts.index › Api\Admin\PostController@index
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  POST            api/admin/posts admin.posts.store › Api\Admin\PostController@store
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  GET|HEAD        api/admin/posts/{post} admin.posts.show › Api\Admin\PostController@show
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  PUT|PATCH       api/admin/posts/{post} admin.posts.update › Api\Admin\PostController@update
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  DELETE          api/admin/posts/{post} admin.posts.destroy › Api\Admin\PostController@destroy
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  GET|HEAD        api/admin/registrations admin. › Api\Admin\RegistrationController@index
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+  GET|HEAD        api/admin/registrations/{id} admin. › Api\Admin\RegistrationController@show
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+  PATCH           api/admin/registrations/{id}/documents/{documentId} admin. › Api\Admin\RegistrationController@updateDocumentStatus
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+  PATCH           api/admin/registrations/{id}/status admin. › Api\Admin\RegistrationController@updateStatus
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+  GET|HEAD        api/admin/roles .... admin. › Api\Admin\UserController@roles
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin
+  GET|HEAD        api/admin/settings admin. › Api\Admin\SettingController@index
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  PUT             api/admin/settings admin. › Api\Admin\SettingController@update
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  GET|HEAD        api/admin/teachers admin.teachers.index › Api\Admin\TeacherController@index
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  POST            api/admin/teachers admin.teachers.store › Api\Admin\TeacherController@store
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  GET|HEAD        api/admin/teachers/{teacher} admin.teachers.show › Api\Admin\TeacherController@show
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  PUT|PATCH       api/admin/teachers/{teacher} admin.teachers.update › Api\Admin\TeacherController@update
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  DELETE          api/admin/teachers/{teacher} admin.teachers.destroy › Api\Admin\TeacherController@destroy
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  GET|HEAD        api/admin/testimonials admin.testimonials.index › Api\Admin\TestimonialController@index
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  POST            api/admin/testimonials admin.testimonials.store › Api\Admin\TestimonialController@store
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  PUT|PATCH       api/admin/testimonials/{testimonial} admin.testimonials.update › Api\Admin\TestimonialController@update
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  DELETE          api/admin/testimonials/{testimonial} admin.testimonials.destroy › Api\Admin\TestimonialController@destroy
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin
+  GET|HEAD        api/admin/users admin.users.index › Api\Admin\UserController@index
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin
+  POST            api/admin/users admin.users.store › Api\Admin\UserController@store
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin
+  GET|HEAD        api/admin/users/{user} admin.users.show › Api\Admin\UserController@show
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin
+  PUT|PATCH       api/admin/users/{user} admin.users.update › Api\Admin\UserController@update
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin
+  DELETE          api/admin/users/{user} admin.users.destroy › Api\Admin\UserController@destroy
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin,admin,operator_ppdb
+                  ⇂ App\Http\Middleware\EnsureUserHasRole:super_admin
+  GET|HEAD        api/albums ....................... Api\AlbumController@index
+                  ⇂ api
+  GET|HEAD        api/albums/{slug} ................. Api\AlbumController@show
+                  ⇂ api
+  GET|HEAD        api/alumni ...................... Api\AlumniController@index
+                  ⇂ api
+  POST            api/auth/login .................... Api\AuthController@login
+                  ⇂ api
+  POST            api/auth/logout .................. Api\AuthController@logout
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+  GET|HEAD        api/auth/me .......................... Api\AuthController@me
+                  ⇂ api
+                  ⇂ Illuminate\Auth\Middleware\Authenticate:sanctum
+  GET|HEAD        api/categories ................ Api\CategoryController@index
+                  ⇂ api
+  GET|HEAD        api/forms/{slug} ................... Api\FormController@show
+                  ⇂ api
+  POST            api/forms/{slug}/submit .......... Api\FormController@submit
+                  ⇂ api
+  GET|HEAD        api/pages ......................... Api\PageController@index
+                  ⇂ api
+  GET|HEAD        api/pages/{slug} ................... Api\PageController@show
+                  ⇂ api
+  GET|HEAD        api/posts ......................... Api\PostController@index
+                  ⇂ api
+  GET|HEAD        api/posts/{slug} ................... Api\PostController@show
+                  ⇂ api
+  GET|HEAD        api/profile .................. Api\SettingController@profile
+                  ⇂ api
+  POST            api/registrations ......... Api\RegistrationController@store
+                  ⇂ api
+  POST            api/registrations/{id}/documents Api\RegistrationController@uploadDocuments
+                  ⇂ api
+  POST            api/registrations/{id}/payment Api\RegistrationController@createPayment
+                  ⇂ api
+  GET|HEAD        api/registrations/{number}/status Api\RegistrationController@checkStatus
+                  ⇂ api
+  GET|HEAD        api/settings ................... Api\SettingController@index
+                  ⇂ api
+  GET|HEAD        api/teachers ................... Api\TeacherController@index
+                  ⇂ api
+  GET|HEAD        api/testimonials ........... Api\TestimonialController@index
+                  ⇂ api
+  POST            api/webhooks/midtrans ....... Api\WebhookController@midtrans
+                  ⇂ api
+
+                                                           Showing [76] routes
+

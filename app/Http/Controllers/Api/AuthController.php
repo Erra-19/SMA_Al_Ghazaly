@@ -17,7 +17,9 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $user = User::where('email', $request->email)->where('is_active', 1)->first();
+        $user = User::where('email', $request->email)
+					->where('is_active', 1)
+					->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Kredensial tidak valid.'], 401);
@@ -33,7 +35,7 @@ class AuthController extends Controller
 
     public function logout(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()->delete();
+        $request->user()->currentAccessToken()?->delete();
 
         return response()->json(['message' => 'Berhasil logout.']);
     }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Page extends Model
 {
@@ -14,6 +15,7 @@ class Page extends Model
         'content',
         'thumbnail',
         'is_published',
+		'author_id',
         'order',
         'meta_title',
         'meta_description',
@@ -22,4 +24,9 @@ class Page extends Model
     protected $casts = [
         'is_published' => 'boolean',
     ];
+
+    public function author(): BelongsTo
+    {
+    	return $this->belongsTo(User::class, 'author_id', 'id');
+    }
 }

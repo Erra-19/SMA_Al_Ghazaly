@@ -1,0 +1,502 @@
+{
+  "info": {
+    "name": "AlGhazaly API",
+    "description": "Koleksi endpoint REST API sistem AlGhazaly — mencakup autentikasi, konten publik, PPDB, dan panel admin.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000/api", "type": "string" },
+    { "key": "token",    "value": "",                          "type": "string" }
+  ],
+  "item": [
+
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.token) { pm.collectionVariables.set('token', json.token); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@alghazaly.sch.id\",\n  \"password\": \"password\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth","login"] }
+          }
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept",        "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/auth/me", "host": ["{{base_url}}"], "path": ["auth","me"] }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept",        "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/auth/logout", "host": ["{{base_url}}"], "path": ["auth","logout"] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Publik — Konten",
+      "item": [
+        {
+          "name": "Settings",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/settings", "host": ["{{base_url}}"], "path": ["settings"] }
+          }
+        },
+        {
+          "name": "Daftar Halaman",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/pages", "host": ["{{base_url}}"], "path": ["pages"] }
+          }
+        },
+        {
+          "name": "Detail Halaman",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/pages/:slug", "host": ["{{base_url}}"], "path": ["pages",":slug"], "variable": [{ "key": "slug", "value": "tentang-kami" }] }
+          }
+        },
+        {
+          "name": "Daftar Post",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/posts?page=1&search=&category=",
+              "host": ["{{base_url}}"], "path": ["posts"],
+              "query": [
+                { "key": "page",     "value": "1" },
+                { "key": "search",   "value": "",  "disabled": true },
+                { "key": "category", "value": "",  "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Detail Post",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/posts/:slug", "host": ["{{base_url}}"], "path": ["posts",":slug"], "variable": [{ "key": "slug", "value": "judul-post" }] }
+          }
+        },
+        {
+          "name": "Daftar Kategori",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/categories", "host": ["{{base_url}}"], "path": ["categories"] }
+          }
+        },
+        {
+          "name": "Daftar Guru",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/teachers", "host": ["{{base_url}}"], "path": ["teachers"] }
+          }
+        },
+        {
+          "name": "Daftar Testimoni",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/testimonials", "host": ["{{base_url}}"], "path": ["testimonials"] }
+          }
+        },
+        {
+          "name": "Daftar Alumni",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/alumni", "host": ["{{base_url}}"], "path": ["alumni"] }
+          }
+        },
+        {
+          "name": "Daftar Album",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/albums", "host": ["{{base_url}}"], "path": ["albums"] }
+          }
+        },
+        {
+          "name": "Detail Album",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/albums/:slug", "host": ["{{base_url}}"], "path": ["albums",":slug"], "variable": [{ "key": "slug", "value": "kegiatan-2024" }] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Publik — Form",
+      "item": [
+        {
+          "name": "Detail Form",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/forms/:slug", "host": ["{{base_url}}"], "path": ["forms",":slug"], "variable": [{ "key": "slug", "value": "kontak" }] }
+          }
+        },
+        {
+          "name": "Submit Form",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Budi Santoso\",\n  \"email\": \"budi@email.com\",\n  \"message\": \"Halo, saya ingin bertanya...\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/forms/:slug/submit", "host": ["{{base_url}}"], "path": ["forms",":slug","submit"], "variable": [{ "key": "slug", "value": "kontak" }] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Publik — PPDB",
+      "item": [
+        {
+          "name": "Daftar Pendaftaran",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Ahmad Fauzi\",\n  \"birth_date\": \"2010-05-15\",\n  \"birth_place\": \"Jakarta\",\n  \"gender\": \"L\",\n  \"address\": \"Jl. Merdeka No. 10, Jakarta\",\n  \"phone\": \"081234567890\",\n  \"parent_name\": \"Hendra Fauzi\",\n  \"parent_phone\": \"081298765432\",\n  \"previous_school\": \"SDN 01 Jakarta\",\n  \"academic_year\": \"2025/2026\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/registrations", "host": ["{{base_url}}"], "path": ["registrations"] }
+          }
+        },
+        {
+          "name": "Upload Dokumen",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "documents[0][type]", "value": "ijazah",  "type": "text" },
+                { "key": "documents[0][file]", "type": "file",     "src": "" },
+                { "key": "documents[1][type]", "value": "kk",      "type": "text" },
+                { "key": "documents[1][file]", "type": "file",     "src": "" }
+              ]
+            },
+            "url": { "raw": "{{base_url}}/registrations/:id/documents", "host": ["{{base_url}}"], "path": ["registrations",":id","documents"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Cek Status Pendaftaran",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/registrations/:number/status", "host": ["{{base_url}}"], "path": ["registrations",":number","status"], "variable": [{ "key": "number", "value": "PPDB-2025-ABCDEF" }] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Admin — Dashboard",
+      "item": [
+        {
+          "name": "Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept",        "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/admin/dashboard", "host": ["{{base_url}}"], "path": ["admin","dashboard"] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Admin — Post",
+      "item": [
+        {
+          "name": "Daftar Post",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/admin/posts?page=1&status=&search=", "host": ["{{base_url}}"], "path": ["admin","posts"], "query": [{ "key": "page", "value": "1" }, { "key": "status", "value": "", "disabled": true }, { "key": "search", "value": "", "disabled": true }] }
+          }
+        },
+        {
+          "name": "Buat Post",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Judul Artikel Baru\",\n  \"content\": \"<p>Isi konten artikel...</p>\",\n  \"excerpt\": \"Ringkasan singkat artikel.\",\n  \"thumbnail\": \"images/thumbnail.jpg\",\n  \"status\": \"published\",\n  \"categories\": [1, 2],\n  \"meta_title\": \"Judul SEO\",\n  \"meta_description\": \"Deskripsi SEO\",\n  \"meta_keywords\": \"kata kunci, seo\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/admin/posts", "host": ["{{base_url}}"], "path": ["admin","posts"] }
+          }
+        },
+        {
+          "name": "Detail Post",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/admin/posts/:id", "host": ["{{base_url}}"], "path": ["admin","posts",":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Update Post",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Judul Diperbarui\",\n  \"status\": \"published\",\n  \"categories\": [1]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/admin/posts/:id", "host": ["{{base_url}}"], "path": ["admin","posts",":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Hapus Post",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/admin/posts/:id", "host": ["{{base_url}}"], "path": ["admin","posts",":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Admin — Registrasi (PPDB)",
+      "item": [
+        {
+          "name": "Daftar Registrasi",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/admin/registrations?page=1&status=&academic_year=&search=", "host": ["{{base_url}}"], "path": ["admin","registrations"], "query": [{ "key": "page", "value": "1" }, { "key": "status", "value": "", "disabled": true }, { "key": "academic_year", "value": "", "disabled": true }, { "key": "search", "value": "", "disabled": true }] }
+          }
+        },
+        {
+          "name": "Detail Registrasi",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/admin/registrations/:id", "host": ["{{base_url}}"], "path": ["admin","registrations",":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Update Status Registrasi",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"accepted\",\n  \"notes\": \"Selamat, Anda diterima.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/admin/registrations/:id/status", "host": ["{{base_url}}"], "path": ["admin","registrations",":id","status"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Admin — Payment",
+      "item": [
+        {
+          "name": "Daftar Payment",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/admin/payments?page=1&status=&search=", "host": ["{{base_url}}"], "path": ["admin","payments"], "query": [{ "key": "page", "value": "1" }, { "key": "status", "value": "", "disabled": true }, { "key": "search", "value": "", "disabled": true }] }
+          }
+        },
+        {
+          "name": "Detail Payment",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/admin/payments/:id", "host": ["{{base_url}}"], "path": ["admin","payments",":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Admin — Media",
+      "item": [
+        {
+          "name": "Daftar Media",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/admin/medias", "host": ["{{base_url}}"], "path": ["admin","medias"] }
+          }
+        },
+        {
+          "name": "Upload Media",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "file", "type": "file", "src": "" }]
+            },
+            "url": { "raw": "{{base_url}}/admin/medias", "host": ["{{base_url}}"], "path": ["admin","medias"] }
+          }
+        },
+        {
+          "name": "Hapus Media",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/admin/medias/:id", "host": ["{{base_url}}"], "path": ["admin","medias",":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Admin — Pesan (Form Submission)",
+      "item": [
+        {
+          "name": "Daftar Pesan",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/admin/messages", "host": ["{{base_url}}"], "path": ["admin","messages"] }
+          }
+        },
+        {
+          "name": "Detail Pesan",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/admin/messages/:id", "host": ["{{base_url}}"], "path": ["admin","messages",":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Hapus Pesan",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/admin/messages/:id", "host": ["{{base_url}}"], "path": ["admin","messages",":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Admin — Settings",
+      "item": [
+        {
+          "name": "Get Settings",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/admin/settings", "host": ["{{base_url}}"], "path": ["admin","settings"] }
+          }
+        },
+        {
+          "name": "Update Settings",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"site_name\": \"Al-Ghazaly\",\n  \"site_description\": \"Sekolah Islam Terpadu\",\n  \"contact_email\": \"info@alghazaly.sch.id\",\n  \"contact_phone\": \"02112345678\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/admin/settings", "host": ["{{base_url}}"], "path": ["admin","settings"] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Admin — Users",
+      "item": [
+        {
+          "name": "Daftar User",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/admin/users", "host": ["{{base_url}}"], "path": ["admin","users"] }
+          }
+        },
+        {
+          "name": "Daftar Role",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/admin/roles", "host": ["{{base_url}}"], "path": ["admin","roles"] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Webhook",
+      "item": [
+        {
+          "name": "Midtrans Webhook (Simulasi)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"PPDB-2025-ABCDEF\",\n  \"status_code\": \"200\",\n  \"gross_amount\": \"500000.00\",\n  \"transaction_id\": \"abc123xyz\",\n  \"transaction_status\": \"settlement\",\n  \"payment_type\": \"bank_transfer\",\n  \"signature_key\": \"<sha512_hash>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/webhooks/midtrans", "host": ["{{base_url}}"], "path": ["webhooks","midtrans"] }
+          }
+        }
+      ]
+    }
+
+  ]
+}

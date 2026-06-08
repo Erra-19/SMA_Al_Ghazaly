@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
+use App\Models\PaymentHistory;
 use App\Models\Registration;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -33,7 +34,7 @@ class WebhookController extends Controller
             return response()->json(['message' => 'Order tidak ditemukan.'], 404);
         }
 
-        $transactionStatus = $payload['transaction_status'];
+        $transactionStatus = $payload['transaction_status'] ?? null;
         $paymentStatus = match ($transactionStatus) {
             'capture', 'settlement' => 'paid',
             'cancel', 'deny'        => 'failed',
@@ -41,18 +42,36 @@ class WebhookController extends Controller
             default                 => $payment->status,
         };
 
+        $oldStatus = $payment->status;
+
         $payment->update([
             'transaction_id' => $payload['transaction_id'] ?? $payment->transaction_id,
             'payment_type'   => $payload['payment_type'] ?? $payment->payment_type,
             'status'         => $paymentStatus,
+            'paid_amount'    => $paymentStatus === 'paid' ? $payment->amount : $payment->paid_amount,
             'paid_at'        => $paymentStatus === 'paid' ? now() : $payment->paid_at,
         ]);
+
+        PaymentHistory::create([
+            'payment_id' => $payment->payment_id,
+            'order_id' => $payment->order_id,
+            'transaction_id' => $payload['transaction_id'] ?? $payment->transaction_id,
+            'old_status' => $oldStatus,
+            'new_status' => $paymentStatus,
+            'event_type' => $transactionStatus,
+            'payload' => $payload,
+        ]);
+
+        $registration = $payment->fresh('registration.payments')->registration;
+        $registration?->syncPaymentSummary();
 
         // Update status registrasi jika pembayaran lunas
         if ($paymentStatus === 'paid' && $payment->registration_id) {
             Registration::where('registration_id', $payment->registration_id)
-                ->where('status', 'pending')
+                ->whereIn('status', ['submitted', 'document_review'])
                 ->update(['status' => 'verified']);
+
+            $registration?->fresh('payments', 'student')->syncStudentIfReady();
         }
 
         return response()->json(['message' => 'OK']);

@@ -7,26 +7,32 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RegistrationDocument extends Model
 {
-    protected $primaryKey = 'id';
-    public $timestamps = false;
+    protected $primaryKey = 'document_id';
 
     protected $fillable = [
         'registration_id',
         'document_type',
-        'media_id',
+        'file_path',
+        'original_name',
+        'mime_type',
+        'file_size',
+        'status',
+        'notes',
+        'verified_at',
+        'verified_by',
     ];
 
     protected $casts = [
-        'uploaded_at' => 'datetime',
+        'verified_at' => 'datetime',
     ];
 
-    public function registration(): BelongsTo
+    public function registration()
     {
         return $this->belongsTo(Registration::class, 'registration_id', 'registration_id');
     }
 
-    public function media(): BelongsTo
+    public function verifier()
     {
-        return $this->belongsTo(Media::class, 'media_id', 'media_id');
+        return $this->belongsTo(User::class, 'verified_by', 'id');
     }
 }

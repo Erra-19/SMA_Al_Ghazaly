@@ -1,0 +1,2 @@
+HTTP anonymous dashboard: 401
+{"message":"Unauthenticated."}

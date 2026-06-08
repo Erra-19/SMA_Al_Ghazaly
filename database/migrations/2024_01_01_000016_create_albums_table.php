@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('albums', function (Blueprint $table) {
@@ -16,13 +19,19 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->tinyInteger('is_published')->default(0);
             $table->unsignedSmallInteger('order')->default(0);
+            $table->unsignedBigInteger('author_id')->nullable();
             $table->timestamps();
 
             $table->unique('slug', 'idx_unique_album_slug');
             $table->index('is_published', 'idx_album_is_published');
+
+            $table->foreign('author_id')->references('id')->on('users')->nullOnDelete();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('albums');

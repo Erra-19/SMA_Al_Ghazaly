@@ -11,7 +11,7 @@ class TestimonialController extends Controller
 {
     public function index(): JsonResponse
     {
-        return response()->json(Testimonial::orderBy('order')->get());
+        return response()->json(Testimonial::latest('testimonial_id')->get());
     }
 
     public function store(Request $request): JsonResponse
@@ -23,10 +23,9 @@ class TestimonialController extends Controller
             'photo'        => 'nullable|string|max:255',
             'rating'       => 'nullable|integer|min:1|max:5',
             'is_published' => 'boolean',
-            'order'        => 'integer|min:0',
         ]);
 
-        return response()->json(Testimonial::create($request->only(['name', 'role', 'content', 'photo', 'rating', 'is_published', 'order'])), 201);
+        return response()->json(Testimonial::create($request->only(['name', 'role', 'content', 'photo', 'rating', 'is_published'])), 201);
     }
 
     public function update(Request $request, int $id): JsonResponse
@@ -40,10 +39,9 @@ class TestimonialController extends Controller
             'photo'        => 'nullable|string|max:255',
             'rating'       => 'nullable|integer|min:1|max:5',
             'is_published' => 'boolean',
-            'order'        => 'integer|min:0',
         ]);
 
-        $testimonial->update($request->only(['name', 'role', 'content', 'photo', 'rating', 'is_published', 'order']));
+        $testimonial->update($request->only(['name', 'role', 'content', 'photo', 'rating', 'is_published']));
 
         return response()->json($testimonial);
     }

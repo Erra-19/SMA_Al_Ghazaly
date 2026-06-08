@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('testimonials', function (Blueprint $table) {
@@ -17,12 +20,16 @@ return new class extends Migration
             $table->tinyInteger('rating')->nullable();
             $table->tinyInteger('is_published')->default(0);
             $table->unsignedSmallInteger('order')->default(0);
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps();
 
             $table->index('is_published', 'idx_testimonial_is_published');
+            $table->index('order', 'idx_testimonial_order');
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('testimonials');

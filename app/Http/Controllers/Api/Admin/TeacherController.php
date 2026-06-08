@@ -17,16 +17,30 @@ class TeacherController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
+            'nip'       => 'nullable|string|max:50|unique:teachers,nip',
             'name'      => 'required|string|max:100',
             'position'  => 'required|string|max:100',
             'subject'   => 'nullable|string|max:100',
             'photo'     => 'nullable|string|max:255',
+            'phone'     => 'nullable|string|max:30',
+            'email'     => 'nullable|email|max:100',
             'bio'       => 'nullable|string',
             'order'     => 'integer|min:0',
             'is_active' => 'boolean',
         ]);
 
-        $teacher = Teacher::create($request->only(['name', 'position', 'subject', 'photo', 'bio', 'order', 'is_active']));
+        $teacher = Teacher::create($request->only([
+            'nip',
+            'name',
+            'position',
+            'subject',
+            'photo',
+            'phone',
+            'email',
+            'bio',
+            'order',
+            'is_active',
+        ]));
 
         return response()->json($teacher, 201);
     }
@@ -41,16 +55,30 @@ class TeacherController extends Controller
         $teacher = Teacher::findOrFail($id);
 
         $request->validate([
+            'nip'       => "nullable|string|max:50|unique:teachers,nip,{$id},teacher_id",
             'name'      => 'sometimes|string|max:100',
             'position'  => 'sometimes|string|max:100',
             'subject'   => 'nullable|string|max:100',
             'photo'     => 'nullable|string|max:255',
+            'phone'     => 'nullable|string|max:30',
+            'email'     => 'nullable|email|max:100',
             'bio'       => 'nullable|string',
             'order'     => 'integer|min:0',
             'is_active' => 'boolean',
         ]);
 
-        $teacher->update($request->only(['name', 'position', 'subject', 'photo', 'bio', 'order', 'is_active']));
+        $teacher->update($request->only([
+            'nip',
+            'name',
+            'position',
+            'subject',
+            'photo',
+            'phone',
+            'email',
+            'bio',
+            'order',
+            'is_active',
+        ]));
 
         return response()->json($teacher);
     }

@@ -11,30 +11,41 @@ class Post extends Model
     protected $primaryKey = 'post_id';
 
     protected $fillable = [
-        'author_id',
         'title',
+        'type',
         'slug',
-        'excerpt',
         'content',
         'thumbnail',
-        'status',
-        'published_at',
+        'is_published',
+        'order',
+        'author_id',
         'meta_title',
         'meta_description',
-        'meta_keywords',
+        'event_start_at',
+        'event_end_at',
+        'event_location',
     ];
 
     protected $casts = [
-        'published_at' => 'datetime',
+        'is_published' => 'boolean',
+        'event_start_at' => 'datetime',
+        'event_end_at' => 'datetime',
     ];
 
-    public function author(): BelongsTo
+    public function author()
     {
-        return $this->belongsTo(User::class, 'author_id');
+        return $this->belongsTo(User::class, 'author_id', 'id');
     }
 
-    public function categories(): BelongsToMany
+    public function categories()
     {
-        return $this->belongsToMany(Category::class, 'post_categories', 'post_id', 'category_id');
+        return $this->belongsToMany(
+            Category::class,
+            'post_categories',
+            'post_id',
+            'category_id',
+            'post_id',
+            'category_id'
+        );
     }
 }

@@ -10,16 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Category extends Model
 {
     protected $primaryKey = 'category_id';
-    public $timestamps = false;
 
     protected $fillable = [
         'category_name',
         'slug',
         'parent_id',
-    ];
-
-    protected $casts = [
-        'created_at' => 'datetime',
     ];
 
     public function parent(): BelongsTo

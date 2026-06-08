@@ -1,0 +1,46 @@
+
+   INFO  Preparing database.  
+
+  Creating migration table ...................................... 11.63ms DONE
+
+   INFO  Running migrations.  
+
+  0001_01_01_000000_create_users_table .......................... 75.91ms DONE
+  0001_01_01_000001_create_cache_table .......................... 24.48ms DONE
+  0001_01_01_000002_create_jobs_table ........................... 26.65ms DONE
+  2024_01_01_000001_create_categories_table ..................... 15.48ms DONE
+  2024_01_01_000002_create_posts_table .......................... 27.98ms DONE
+  2024_01_01_000003_create_post_categories_table ................. 6.73ms DONE
+  2024_01_01_000004_create_pages_table .......................... 15.20ms DONE
+  2024_01_01_000005_create_medias_table ......................... 21.16ms DONE
+  2024_01_01_000006_create_forms_table .......................... 14.22ms DONE
+  2024_01_01_000007_create_form_submissions_table ............... 24.57ms DONE
+  2024_01_01_000008_create_registrations_table .................. 48.04ms DONE
+  2024_01_01_000009_create_registration_documents_table ......... 24.24ms DONE
+  2024_01_01_000010_create_payments_table ....................... 55.21ms DONE
+  2024_01_01_000011_create_payment_history_table ................ 57.98ms DONE
+  2024_01_01_000012_create_settings_table ....................... 17.63ms DONE
+  2024_01_01_000013_create_personal_access_tokens_table ......... 18.66ms DONE
+  2024_01_01_000014_create_students_table ....................... 55.89ms DONE
+  2024_01_01_000015_create_teachers_table ....................... 21.32ms DONE
+  2024_01_01_000016_create_albums_table ......................... 18.37ms DONE
+  2024_01_01_000017_create_album_medias_table .................... 6.54ms DONE
+  2024_01_01_000018_create_notifications_table .................. 11.54ms DONE
+  2024_01_01_000019_create_testimonials_table ................... 19.27ms DONE
+  2024_01_01_000020_create_alumni_table ......................... 16.72ms DONE
+
+
+   INFO  Seeding database.  
+
+  Database\Seeders\RoleSeeder ........................................ RUNNING  
+  Database\Seeders\RoleSeeder ..................................... 26 ms DONE  
+
+  Database\Seeders\AdminUserSeeder ................................... RUNNING  
+  Database\Seeders\AdminUserSeeder ............................... 203 ms DONE  
+
+  Database\Seeders\SettingSeeder ..................................... RUNNING  
+  Database\Seeders\SettingSeeder .................................. 93 ms DONE  
+
+  Database\Seeders\CategorySeeder .................................... RUNNING  
+  Database\Seeders\CategorySeeder ................................. 31 ms DONE  
+

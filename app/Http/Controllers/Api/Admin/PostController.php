@@ -12,8 +12,9 @@ class PostController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $posts = Post::with('author:id,name', 'categories:category_id,category_name')
-            ->when($request->status, fn ($q) => $q->where('status', $request->status))
+        $posts = Post::with('author:id,name', 'categories:category_id,category_name,slug')
+            ->when($request->type, fn ($q) => $q->where('type', $request->type))
+            ->when($request->has('is_published'), fn ($q) => $q->where('is_published', $request->boolean('is_published')))
             ->when($request->search, fn ($q) => $q->where('title', 'like', "%{$request->search}%"))
             ->orderByDesc('created_at')
             ->paginate(15);
@@ -25,25 +26,36 @@ class PostController extends Controller
     {
         $request->validate([
             'title'            => 'required|string|max:255',
+            'type'             => 'required|in:news,article,event',
             'content'          => 'required|string',
-            'excerpt'          => 'nullable|string',
             'thumbnail'        => 'nullable|string|max:255',
-            'status'           => 'required|in:draft,published,archived',
+            'is_published'     => 'boolean',
+            'order'            => 'integer|min:0',
             'categories'       => 'nullable|array',
             'categories.*'     => 'exists:categories,category_id',
             'meta_title'       => 'nullable|string|max:160',
             'meta_description' => 'nullable|string|max:255',
-            'meta_keywords'    => 'nullable|string|max:255',
+            'event_start_at'   => 'nullable|date',
+            'event_end_at'     => 'nullable|date|after_or_equal:event_start_at',
+            'event_location'   => 'nullable|string|max:150',
         ]);
 
         $post = Post::create([
             ...$request->only([
-                'title', 'content', 'excerpt', 'thumbnail', 'status',
-                'meta_title', 'meta_description', 'meta_keywords',
+                'title',
+                'type',
+                'content',
+                'thumbnail',
+                'is_published',
+                'order',
+                'meta_title',
+                'meta_description',
+                'event_start_at',
+                'event_end_at',
+                'event_location',
             ]),
-            'author_id'    => $request->user()->id,
-            'slug'         => Str::slug($request->title),
-            'published_at' => $request->status === 'published' ? now() : null,
+            'author_id' => $request->user()?->id,
+            'slug' => Str::slug($request->title),
         ]);
 
         if ($request->filled('categories')) {
@@ -65,28 +77,36 @@ class PostController extends Controller
 
         $request->validate([
             'title'            => 'sometimes|string|max:255',
+            'type'             => 'sometimes|in:news,article,event',
             'content'          => 'sometimes|string',
-            'excerpt'          => 'nullable|string',
             'thumbnail'        => 'nullable|string|max:255',
-            'status'           => 'sometimes|in:draft,published,archived',
+            'is_published'     => 'boolean',
+            'order'            => 'integer|min:0',
             'categories'       => 'nullable|array',
             'categories.*'     => 'exists:categories,category_id',
             'meta_title'       => 'nullable|string|max:160',
             'meta_description' => 'nullable|string|max:255',
-            'meta_keywords'    => 'nullable|string|max:255',
+            'event_start_at'   => 'nullable|date',
+            'event_end_at'     => 'nullable|date|after_or_equal:event_start_at',
+            'event_location'   => 'nullable|string|max:150',
         ]);
 
         $data = $request->only([
-            'title', 'content', 'excerpt', 'thumbnail', 'status',
-            'meta_title', 'meta_description', 'meta_keywords',
+            'title',
+            'type',
+            'content',
+            'thumbnail',
+            'is_published',
+            'order',
+            'meta_title',
+            'meta_description',
+            'event_start_at',
+            'event_end_at',
+            'event_location',
         ]);
 
         if (isset($data['title'])) {
             $data['slug'] = Str::slug($data['title']);
-        }
-
-        if (isset($data['status']) && $data['status'] === 'published' && ! $post->published_at) {
-            $data['published_at'] = now();
         }
 
         $post->update($data);

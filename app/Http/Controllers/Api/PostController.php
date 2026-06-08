@@ -12,10 +12,11 @@ class PostController extends Controller
     public function index(Request $request): JsonResponse
     {
         $posts = Post::with('author:id,name', 'categories:category_id,category_name,slug')
-            ->where('status', 'published')
+            ->where('is_published', 1)
+            ->when($request->type, fn ($q) => $q->where('type', $request->type))
             ->when($request->category, fn ($q) => $q->whereHas('categories', fn ($q) => $q->where('slug', $request->category)))
             ->when($request->search, fn ($q) => $q->where('title', 'like', "%{$request->search}%"))
-            ->orderByDesc('published_at')
+            ->orderByDesc('created_at')
             ->paginate(12);
 
         return response()->json($posts);
@@ -25,7 +26,7 @@ class PostController extends Controller
     {
         $post = Post::with('author:id,name', 'categories:category_id,category_name,slug')
             ->where('slug', $slug)
-            ->where('status', 'published')
+            ->where('is_published', 1)
             ->firstOrFail();
 
         return response()->json($post);

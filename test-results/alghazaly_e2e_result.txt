@@ -1,0 +1,16 @@
+PASS | Auth login admin | HTTP 200
+PASS | Admin token resolves super_admin role | HTTP 200; role=super_admin
+PASS | Admin dashboard route has auth and role guard | api,auth:sanctum,role:super_admin,admin,operator_ppdb
+PASS | Content routes require admin/super_admin role | api,auth:sanctum,role:super_admin,admin,operator_ppdb,role:super_admin,admin
+PASS | User management requires super_admin role | api,auth:sanctum,role:super_admin,admin,operator_ppdb,role:super_admin
+PASS | PPDB create registration | HTTP 201; status=submitted
+PASS | PPDB upload document metadata | HTTP 200; status=document_review
+PASS | PPDB admin verifies document | HTTP 200; registration=verified; document=verified
+PASS | PPDB free payment becomes paid | HTTP 200; payment=paid
+PASS | PPDB accepted generates student | HTTP 200; student=1
+PASS | PPDB public status check | HTTP 200; status=accepted
+PASS | Admin creates published event post | HTTP 201; slug=agenda-e2e-qvcbmr
+PASS | Public event listing returns published event | HTTP 200; found=yes
+PASS | Public settings excludes private bank keys | HTTP 200; bank_name_present=no
+PASS | Public profile endpoint responds | HTTP 200
+SUMMARY | 15/15 passed

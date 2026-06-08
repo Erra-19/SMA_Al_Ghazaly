@@ -11,7 +11,7 @@ class TestimonialController extends Controller
     public function index(): JsonResponse
     {
         $testimonials = Testimonial::where('is_published', 1)
-            ->orderBy('order')
+            ->latest('testimonial_id')
             ->get(['testimonial_id', 'name', 'role', 'content', 'photo', 'rating']);
 
         return response()->json($testimonials);

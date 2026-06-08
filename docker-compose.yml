@@ -21,6 +21,7 @@ services:
       - MIDTRANS_CLIENT_KEY=${MIDTRANS_CLIENT_KEY}
       - MIDTRANS_IS_PRODUCTION=${MIDTRANS_IS_PRODUCTION:-false}
     volumes:
+      - .:/var/www/html
       - alghazaly_storage:/var/www/html/storage/app/public
     ports:
       - "9004:80"

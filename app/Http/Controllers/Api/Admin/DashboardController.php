@@ -17,7 +17,9 @@ class DashboardController extends Controller
         return response()->json([
             'registrations' => [
                 'total'    => Registration::count(),
-                'pending'  => Registration::where('status', 'pending')->count(),
+                'submitted' => Registration::where('status', 'submitted')->count(),
+                'document_review' => Registration::where('status', 'document_review')->count(),
+                'verified' => Registration::where('status', 'verified')->count(),
                 'accepted' => Registration::where('status', 'accepted')->count(),
                 'rejected' => Registration::where('status', 'rejected')->count(),
             ],
@@ -30,7 +32,7 @@ class DashboardController extends Controller
             'users'            => User::count(),
             'unread_messages'  => FormSubmission::where('is_read', 0)->count(),
             'recent_registrations' => Registration::latest()->take(5)
-                ->get(['registration_id', 'registration_number', 'full_name', 'status', 'created_at']),
+                ->get(['registration_id', 'registration_number', 'student_name', 'status', 'created_at']),
         ]);
     }
 }
