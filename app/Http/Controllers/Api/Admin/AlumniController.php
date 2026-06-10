@@ -24,13 +24,20 @@ class AlumniController extends Controller
             'name'                => 'required|string|max:100',
             'graduation_year'     => 'required|integer|digits:4',
             'photo'               => 'nullable|string|max:255',
+            'occupation'          => 'nullable|string|max:150',
+            'location'            => 'nullable|string|max:100',
+            'story'               => 'nullable|string',
             'current_institution' => 'nullable|string|max:150',
             'major'               => 'nullable|string|max:100',
             'achievement'         => 'nullable|string',
             'is_published'        => 'boolean',
         ]);
 
-        return response()->json(Alumnus::create($request->only(['name', 'graduation_year', 'photo', 'current_institution', 'major', 'achievement', 'is_published'])), 201);
+        return response()->json(Alumnus::create([
+            ...$request->only(['name', 'graduation_year', 'photo', 'major', 'is_published']),
+            'current_institution' => $request->input('current_institution', $request->input('occupation')),
+            'achievement' => $request->input('achievement', $request->input('story')),
+        ]), 201);
     }
 
     public function update(Request $request, int $id): JsonResponse
@@ -41,13 +48,24 @@ class AlumniController extends Controller
             'name'                => 'sometimes|string|max:100',
             'graduation_year'     => 'sometimes|integer|digits:4',
             'photo'               => 'nullable|string|max:255',
+            'occupation'          => 'nullable|string|max:150',
+            'location'            => 'nullable|string|max:100',
+            'story'               => 'nullable|string',
             'current_institution' => 'nullable|string|max:150',
             'major'               => 'nullable|string|max:100',
             'achievement'         => 'nullable|string',
             'is_published'        => 'boolean',
         ]);
 
-        $alumni->update($request->only(['name', 'graduation_year', 'photo', 'current_institution', 'major', 'achievement', 'is_published']));
+        $data = $request->only(['name', 'graduation_year', 'photo', 'current_institution', 'major', 'achievement', 'is_published']);
+        if ($request->has('occupation')) {
+            $data['current_institution'] = $request->occupation;
+        }
+        if ($request->has('story')) {
+            $data['achievement'] = $request->story;
+        }
+
+        $alumni->update($data);
 
         return response()->json($alumni);
     }

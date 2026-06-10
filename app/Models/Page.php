@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasApiId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Page extends Model
 {
+    use HasApiId;
+
     protected $primaryKey = 'page_id';
+
+    protected $appends = ['id'];
 
     protected $fillable = [
         'title',

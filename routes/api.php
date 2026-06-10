@@ -1,18 +1,24 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\AcademicCalendarController;
 use App\Http\Controllers\Api\AlbumController;
 use App\Http\Controllers\Api\AlumniController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\FormController;
+use App\Http\Controllers\Api\FacilityController;
 use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\ProgramController;
 use App\Http\Controllers\Api\RegistrationController;
 use App\Http\Controllers\Api\SettingController;
+use App\Http\Controllers\Api\StatsController;
 use App\Http\Controllers\Api\TeacherController;
 use App\Http\Controllers\Api\TestimonialController;
 use App\Http\Controllers\Api\WebhookController;
 use App\Http\Controllers\Api\Admin;
+use App\Http\Controllers\Api\Admin\AcademicCalendarController as AdminAcademicCalendarController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Webhook Midtrans (no auth, no CSRF) ─────────────────────────────────────
@@ -28,6 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // ─── Public endpoints ─────────────────────────────────────────────────────────
 Route::get('settings', [SettingController::class, 'index']);
+Route::get('stats', [StatsController::class, 'index']);
 Route::get('profile', [SettingController::class, 'profile']);
 Route::get('pages', [PageController::class, 'index']);
 Route::get('pages/{slug}', [PageController::class, 'show']);
@@ -35,6 +42,9 @@ Route::get('pages/{slug}', [PageController::class, 'show']);
 Route::get('posts', [PostController::class, 'index']);
 Route::get('posts/{slug}', [PostController::class, 'show']);
 Route::get('categories', [CategoryController::class, 'index']);
+Route::get('programs', [ProgramController::class, 'index']);
+Route::get('facilities', [FacilityController::class, 'index']);
+Route::get('academic-calendars', [AcademicCalendarController::class, 'index']);
 
 Route::get('teachers', [TeacherController::class, 'index']);
 Route::get('testimonials', [TestimonialController::class, 'index']);
@@ -45,6 +55,9 @@ Route::get('albums/{slug}', [AlbumController::class, 'show']);
 
 Route::get('forms/{slug}', [FormController::class, 'show']);
 Route::post('forms/{slug}/submit', [FormController::class, 'submit']);
+
+// Contact form
+Route::post('contact', [ContactController::class, 'store']);
 
 // PPDB — publik
 Route::post('registrations', [RegistrationController::class, 'store']);
@@ -61,9 +74,15 @@ Route::middleware(['auth:sanctum', 'role:super_admin,admin,operator_ppdb'])->pre
         Route::apiResource('posts', Admin\PostController::class);
         Route::apiResource('categories', Admin\CategoryController::class)->except('show');
         Route::apiResource('pages', Admin\PageController::class);
+        Route::apiResource('programs', Admin\ProgramController::class)->except('show');
+        Route::apiResource('facilities', Admin\FacilityController::class)->except('show');
         Route::apiResource('teachers', Admin\TeacherController::class);
         Route::apiResource('albums', Admin\AlbumController::class);
         Route::apiResource('testimonials', Admin\TestimonialController::class)->except('show');
+        Route::get('academic-calendars', [AdminAcademicCalendarController::class, 'index']);
+        Route::post('academic-calendars', [AdminAcademicCalendarController::class, 'store']);
+        Route::put('academic-calendars/{id}', [AdminAcademicCalendarController::class, 'update']);
+        Route::delete('academic-calendars/{id}', [AdminAcademicCalendarController::class, 'destroy']);
         Route::apiResource('alumni', Admin\AlumniController::class)->except('show');
 
         Route::post('medias', [Admin\MediaController::class, 'store']);
@@ -84,9 +103,9 @@ Route::middleware(['auth:sanctum', 'role:super_admin,admin,operator_ppdb'])->pre
     Route::patch('payments/{id}', [Admin\PaymentController::class, 'update']);
 
     Route::middleware('role:super_admin,admin')->group(function () {
-        Route::get('messages', [Admin\FormSubmissionController::class, 'index']);
-        Route::get('messages/{id}', [Admin\FormSubmissionController::class, 'show']);
-        Route::delete('messages/{id}', [Admin\FormSubmissionController::class, 'destroy']);
+        Route::get('messages', [Admin\MessageController::class, 'index']);
+        Route::get('messages/{id}', [Admin\MessageController::class, 'show']);
+        Route::delete('messages/{id}', [Admin\MessageController::class, 'destroy']);
     });
 
     Route::middleware('role:super_admin')->group(function () {

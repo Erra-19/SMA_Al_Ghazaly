@@ -23,7 +23,7 @@ class AdminUserSeeder extends Seeder
                 'name' => 'Super Admin',
                 'nisn' => null,
                 'nip' => null,
-                'password' => Hash::make('password'),
+                'password' => Hash::make('Erri1904!!'),
                 'role_id' => $superAdminRoleId,
                 'is_active' => true,
             ]

@@ -20,6 +20,7 @@ class AlbumController extends Controller
         $request->validate([
             'title'        => 'required|string|max:255',
             'cover'        => 'nullable|string|max:255',
+            'cover_image'  => 'nullable|string|max:255',
             'description'  => 'nullable|string',
             'is_published' => 'boolean',
             'order'        => 'integer|min:0',
@@ -27,6 +28,7 @@ class AlbumController extends Controller
 
         $album = Album::create([
             ...$request->only(['title', 'cover', 'description', 'is_published', 'order']),
+            'cover' => $request->input('cover', $request->input('cover_image')),
             'slug' => Str::slug($request->title),
         ]);
 
@@ -45,6 +47,7 @@ class AlbumController extends Controller
         $request->validate([
             'title'        => 'sometimes|string|max:255',
             'cover'        => 'nullable|string|max:255',
+            'cover_image'  => 'nullable|string|max:255',
             'description'  => 'nullable|string',
             'is_published' => 'boolean',
             'order'        => 'integer|min:0',
@@ -53,6 +56,9 @@ class AlbumController extends Controller
         ]);
 
         $data = $request->only(['title', 'cover', 'description', 'is_published', 'order']);
+        if ($request->has('cover_image')) {
+            $data['cover'] = $request->cover_image;
+        }
         if (isset($data['title'])) {
             $data['slug'] = Str::slug($data['title']);
         }

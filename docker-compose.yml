@@ -17,6 +17,7 @@ services:
       - DB_USERNAME=erri
       - DB_PASSWORD=${DB_PASSWORD:-Kyouko407}
       - FRONTEND_URL=https://alghazaly.erri.online
+      - ADMIN_URL=${ADMIN_URL:-https://admin.alghazaly.erri.online}
       - MIDTRANS_SERVER_KEY=${MIDTRANS_SERVER_KEY}
       - MIDTRANS_CLIENT_KEY=${MIDTRANS_CLIENT_KEY}
       - MIDTRANS_IS_PRODUCTION=${MIDTRANS_IS_PRODUCTION:-false}

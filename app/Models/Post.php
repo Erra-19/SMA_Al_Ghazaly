@@ -2,20 +2,28 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasApiId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Post extends Model
 {
+    use HasApiId;
+
     protected $primaryKey = 'post_id';
+
+    protected $appends = ['id', 'image'];
 
     protected $fillable = [
         'title',
         'type',
         'slug',
         'content',
+        'summary',
         'thumbnail',
+        'category',
+        'post_status',
         'is_published',
         'order',
         'author_id',
@@ -31,6 +39,11 @@ class Post extends Model
         'event_start_at' => 'datetime',
         'event_end_at' => 'datetime',
     ];
+
+    public function getImageAttribute(): ?string
+    {
+        return $this->thumbnail;
+    }
 
     public function author()
     {

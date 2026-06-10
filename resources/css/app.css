@@ -879,3 +879,82 @@ textarea:focus {
         min-height: calc(100vh - 190px);
     }
 }
+
+/* ═══ Admin Panel ═══════════════════════════════════════════════════════════ */
+
+[x-cloak] { display: none !important; }
+
+/* ─ Badges ─────────────────────────────────────────────────────────────── */
+.badge {
+    display: inline-flex; align-items: center;
+    padding: 2px 10px; border-radius: 9999px;
+    font-size: 0.72rem; font-weight: 600; border-width: 1px; border-style: solid;
+    white-space: nowrap;
+}
+.badge-green  { background:#d1fae5; color:#019342; border-color:#a7f3d0; }
+.badge-yellow { background:#fef9c3; color:#a16207; border-color:#fde047; }
+.badge-red    { background:#fee2e2; color:#b91c1c; border-color:#fca5a5; }
+.badge-blue   { background:#dbeafe; color:#1d4ed8; border-color:#93c5fd; }
+.badge-gray   { background:#f3f4f6; color:#4b5563; border-color:#e5e7eb; }
+
+/* ─ Form Controls ───────────────────────────────────────────────────────── */
+.adm-label {
+    display: block; font-size: 0.8125rem; font-weight: 500;
+    color: #374151; margin-bottom: 6px;
+}
+.adm-input, .adm-select, .adm-textarea {
+    width: 100%; border-radius: 8px; border: 1px solid #e5e7eb;
+    padding: 8px 12px; font-size: 0.875rem; color: #111827;
+    background: #fff; outline: none; transition: border-color .15s, box-shadow .15s;
+}
+.adm-input:focus, .adm-select:focus, .adm-textarea:focus {
+    border-color: #019342; box-shadow: 0 0 0 3px rgba(1,147,66,.15);
+}
+.adm-textarea { resize: vertical; }
+
+/* ─ Admin Buttons ───────────────────────────────────────────────────────── */
+.adm-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 6px; border-radius: 8px; font-weight: 500; font-size: 0.875rem;
+    border: none; cursor: pointer; transition: background .15s, opacity .15s;
+    padding: 8px 16px; line-height: 1;
+}
+.adm-btn:disabled { opacity: .55; cursor: not-allowed; }
+.adm-btn-primary  { background: #019342; color: #fff; }
+.adm-btn-primary:hover:not(:disabled) { background: #191654; }
+.adm-btn-secondary { background: #f3f4f6; color: #374151; }
+.adm-btn-secondary:hover:not(:disabled) { background: #e5e7eb; }
+.adm-btn-danger    { background: #ef4444; color: #fff; }
+.adm-btn-danger:hover:not(:disabled)  { background: #dc2626; }
+.adm-btn-ghost { background: transparent; color: #6b7280; padding: 6px; border-radius: 6px; }
+.adm-btn-ghost:hover { background: #f3f4f6; }
+.adm-btn-sm { padding: 5px 12px; font-size: 0.78rem; }
+
+/* ─ Admin Card ──────────────────────────────────────────────────────────── */
+.adm-card {
+    background: #fff; border-radius: 12px;
+    border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+
+/* ─ Table ───────────────────────────────────────────────────────────────── */
+.adm-th { padding: 10px 16px; text-align: left; font-size: 0.72rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: .04em; }
+.adm-td { padding: 12px 16px; font-size: 0.875rem; color: #374151; }
+.adm-tr { transition: background .1s; }
+.adm-tr:hover { background: #f9fafb; }
+
+/* ─ Sidebar Navigation ──────────────────────────────────────────────────── */
+.adm-sidebar-link {
+    display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+    border-radius: 8px; font-size: 0.875rem; color: #86efac; /* green-300 */
+    text-decoration: none; cursor: pointer; transition: background .15s, color .15s;
+    border: none; background: transparent; width: 100%; text-align: left;
+}
+.adm-sidebar-link:hover { background: #191654; color: #fff; }
+.adm-sidebar-link.active { background: #019342; color: #fff; font-weight: 500; }
+.adm-sidebar-group {
+    display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+    border-radius: 8px; font-size: 0.875rem; color: #86efac;
+    cursor: pointer; transition: background .15s, color .15s;
+    border: none; background: transparent; width: 100%; text-align: left;
+}
+.adm-sidebar-group:hover { background: #191654; color: #fff; }

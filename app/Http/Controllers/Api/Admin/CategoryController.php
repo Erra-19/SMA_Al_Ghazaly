@@ -12,19 +12,29 @@ class CategoryController extends Controller
 {
     public function index(): JsonResponse
     {
-        return response()->json(Category::with('children')->whereNull('parent_id')->get());
+        return response()->json(
+            Category::with('children')
+                ->withCount('posts')
+                ->whereNull('parent_id')
+                ->orderBy('category_name')
+                ->get()
+        );
     }
 
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'category_name' => 'required|string|max:100',
+            'name'          => 'nullable|string|max:100',
+            'category_name' => 'nullable|string|max:100',
             'parent_id'     => 'nullable|exists:categories,category_id',
         ]);
 
+        $name = $request->input('category_name', $request->input('name'));
+        abort_if(!$name, 422, 'Nama kategori wajib diisi.');
+
         $category = Category::create([
-            'category_name' => $request->category_name,
-            'slug'          => Str::slug($request->category_name),
+            'category_name' => $name,
+            'slug'          => Str::slug($name),
             'parent_id'     => $request->parent_id,
         ]);
 
@@ -36,11 +46,15 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
 
         $request->validate([
+            'name'          => 'nullable|string|max:100',
             'category_name' => 'sometimes|string|max:100',
             'parent_id'     => 'nullable|exists:categories,category_id',
         ]);
 
         $data = $request->only(['category_name', 'parent_id']);
+        if ($request->filled('name')) {
+            $data['category_name'] = $request->name;
+        }
         if (isset($data['category_name'])) {
             $data['slug'] = Str::slug($data['category_name']);
         }

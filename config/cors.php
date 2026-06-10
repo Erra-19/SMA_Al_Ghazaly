@@ -23,6 +23,7 @@ return [
         'http://localhost:3000',
         'http://localhost:5173',
         env('FRONTEND_URL', 'http://localhost:3000'),
+        env('ADMIN_URL', 'http://localhost:5174'),
     ],
 
     'allowed_origins_patterns' => [],

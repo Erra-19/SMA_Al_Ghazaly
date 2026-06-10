@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasApiId;
 use Illuminate\Database\Eloquent\Model;
 
 class Alumnus extends Model
 {
+    use HasApiId;
+
     protected $table = 'alumni';
     protected $primaryKey = 'alumnus_id';
+
+    protected $appends = ['id', 'occupation', 'story'];
 
     protected $fillable = [
         'name',
@@ -22,4 +27,14 @@ class Alumnus extends Model
     protected $casts = [
         'is_published' => 'boolean',
     ];
+
+    public function getOccupationAttribute(): ?string
+    {
+        return $this->current_institution;
+    }
+
+    public function getStoryAttribute(): ?string
+    {
+        return $this->achievement;
+    }
 }

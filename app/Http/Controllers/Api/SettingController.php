@@ -23,9 +23,13 @@ class SettingController extends Controller
 
     public function profile(): JsonResponse
     {
-        $settings = Setting::where('is_public', 1)
-            ->get(['key', 'value', 'type', 'group'])
-            ->groupBy('group');
+        $rawSettings = Setting::where('is_public', 1)
+            ->get(['key', 'value', 'type', 'group']);
+
+        $settings = $rawSettings->groupBy('group');
+
+        // Flat key→value map agar frontend mudah akses per key
+        $settingsFlat = $rawSettings->keyBy('key')->map(fn($s) => $s->value);
 
         $pages = Page::where('is_published', 1)
             ->whereIn('slug', [
@@ -40,8 +44,9 @@ class SettingController extends Controller
             ->keyBy('slug');
 
         return response()->json([
-            'settings' => $settings,
-            'pages' => $pages,
+            'settings'      => $settings,
+            'settings_flat' => $settingsFlat,
+            'pages'         => $pages,
         ]);
     }
 }
