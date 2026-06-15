@@ -113,7 +113,7 @@ export default function EventsTimeline({ onSelectEvent, onSelectPost, events = [
                   onClick={() => onSelectEvent(evt)}
                   className="group cursor-pointer flex items-start gap-4 p-4 rounded-2xl bg-white border border-slate-200/70 hover:border-slate-350 hover:shadow-[0_8px_24px_rgba(0,0,0,0.015)] transition-all duration-300"
                 >
-                  {/* Calender icon box */}
+                  {/* Calendar icon box — always shows start date only */}
                   <div className="shrink-0 flex flex-col items-center justify-center w-14 rounded-xl bg-primary-green/5 border border-primary-green/10 text-center shadow-none transition-all duration-300 group-hover:bg-primary-green group-hover:border-primary-green group-hover:text-primary-white px-1 py-2">
                     <span className="text-[9px] uppercase font-black text-primary-green tracking-wider group-hover:text-primary-white transition-colors">
                       {evt.date.month}
@@ -121,25 +121,22 @@ export default function EventsTimeline({ onSelectEvent, onSelectPost, events = [
                     <span className="text-xl font-black text-slate-950 group-hover:text-primary-white leading-none mt-1 transition-colors">
                       {evt.date.day}
                     </span>
-                    {evt.endDate ? (
-                      <>
-                        <span className="text-[7px] font-bold text-slate-300 group-hover:text-primary-white/60 leading-none transition-colors">─</span>
-                        <span className="text-[9px] font-black text-slate-500 group-hover:text-primary-white transition-colors">{evt.endDate.day}</span>
-                        <span className="text-[8px] font-bold text-slate-400 group-hover:text-primary-white/80 transition-colors">{evt.endDate.month}</span>
-                      </>
-                    ) : (
-                      <span className="text-[8px] font-bold text-slate-400 group-hover:text-primary-white/80 mt-0.5 transition-colors">
-                        {evt.date.year}
-                      </span>
-                    )}
+                    <span className="text-[8px] font-bold text-slate-400 group-hover:text-primary-white/80 mt-0.5 transition-colors">
+                      {evt.date.year}
+                    </span>
                   </div>
 
                   {/* Info details */}
                   <div className="flex-1 space-y-2">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="inline-block rounded-full bg-slate-100 border border-slate-200/60 px-2.5 py-0.5 text-[9px] font-extrabold text-slate-800 uppercase tracking-wide">
                         {evt.category}
                       </span>
+                      {evt.endDate && (
+                        <span className="text-[9px] font-semibold text-slate-400">
+                          s/d {evt.endDate.day} {evt.endDate.month} {evt.endDate.year}
+                        </span>
+                      )}
                     </div>
 
                     <h4 className="text-xs font-black text-slate-900 group-hover:text-black transition leading-snug line-clamp-1 uppercase tracking-wide">

@@ -12,9 +12,11 @@ class PaymentController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $payments = Payment::with('registration:registration_id,student_name,registration_number')
+        $payments = Payment::with('registration:registration_id,student_name,registration_number,status')
             ->when($request->status, fn ($q) => $q->where('status', $request->status))
-            ->when($request->search, fn ($q) => $q->where('order_id', 'like', "%{$request->search}%"))
+            ->when($request->has_proof, fn ($q) => $q->whereNotNull('proof_url'))
+            ->when($request->search, fn ($q) => $q->where('order_id', 'like', "%{$request->search}%")
+                ->orWhereHas('registration', fn ($r) => $r->where('student_name', 'like', "%{$request->search}%")))
             ->orderByDesc('created_at')
             ->paginate(15);
 
@@ -23,7 +25,13 @@ class PaymentController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        return response()->json(Payment::with('registration', 'user:id,name,email')->findOrFail($id));
+        return response()->json(
+            Payment::with([
+                'registration:registration_id,registration_number,student_name,status,payment_status',
+                'user:id,name,email',
+                'histories' => fn ($q) => $q->orderBy('created_at'),
+            ])->findOrFail($id)
+        );
     }
 
     public function update(Request $request, int $id): JsonResponse
@@ -85,5 +93,32 @@ class PaymentController extends Controller
                 : 'Pembayaran diperbarui.',
             'data' => $payment->fresh('registration.student'),
         ]);
+    }
+
+    public function reject(Request $request, int $id): JsonResponse
+    {
+        $request->validate(['reason' => 'nullable|string|max:500']);
+
+        $payment = Payment::with('registration.payments')->findOrFail($id);
+        $oldStatus = $payment->status;
+
+        $payment->update([
+            'status'          => 'failed',
+            'rejected_reason' => $request->reason ?? 'Ditolak oleh admin.',
+        ]);
+
+        PaymentHistory::create([
+            'payment_id'     => $payment->payment_id,
+            'order_id'       => $payment->order_id,
+            'transaction_id' => $payment->transaction_id,
+            'old_status'     => $oldStatus,
+            'new_status'     => 'failed',
+            'event_type'     => 'admin_reject',
+            'payload'        => ['reason' => $request->reason],
+        ]);
+
+        $payment->fresh('registration.payments')->registration?->syncPaymentSummary();
+
+        return response()->json(['message' => 'Bukti pembayaran ditolak.', 'data' => $payment->fresh()]);
     }
 }

@@ -11,13 +11,17 @@ class Form extends Model
 
     protected $fillable = [
         'name',
+        'type',
         'slug',
         'fields',
+        'steps',
+        'description',
         'is_active',
     ];
 
     protected $casts = [
         'fields'    => 'array',
+        'steps'     => 'array',
         'is_active' => 'boolean',
     ];
 

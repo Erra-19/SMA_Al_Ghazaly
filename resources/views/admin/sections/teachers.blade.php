@@ -6,10 +6,21 @@
             <h2 class="text-base font-bold text-gray-900">Data Guru</h2>
             <p class="text-xs text-gray-500 mt-0.5" x-text="`Total: ${meta.total ?? 0} guru`"></p>
         </div>
-        <button @click="openAdd()" class="adm-btn adm-btn-primary">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            Tambah Guru
-        </button>
+        <div class="flex items-center gap-2 flex-wrap">
+            <button @click="downloadTemplate()" class="adm-btn adm-btn-secondary adm-btn-sm">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Template Excel
+            </button>
+            <label class="adm-btn adm-btn-secondary adm-btn-sm cursor-pointer">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l4-4m0 0l4 4m-4-4v12"/></svg>
+                Upload Excel
+                <input type="file" class="hidden" accept=".xlsx,.xls" @change="importFile($event.target.files); $event.target.value=null">
+            </label>
+            <button @click="openAdd()" class="adm-btn adm-btn-primary">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Tambah Guru
+            </button>
+        </div>
     </div>
 
     <div class="adm-card overflow-hidden">
@@ -116,7 +127,7 @@
                                 <input type="checkbox" x-model="form.is_leadership" :value="1" :unchecked-value="0"
                                     @change="form.is_leadership = $event.target.checked ? 1 : 0"
                                     :checked="form.is_leadership == 1"
-                                    class="h-4 w-4 rounded">
+                                    style="width:14px;height:14px;accent-color:#16a34a;cursor:pointer;flex-shrink:0">
                                 <span class="text-sm text-gray-700">Tampilkan di section Direksi</span>
                             </label>
                         </div>

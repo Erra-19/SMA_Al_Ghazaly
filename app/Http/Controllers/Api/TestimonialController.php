@@ -10,11 +10,12 @@ class TestimonialController extends Controller
 {
     public function index(): JsonResponse
     {
-        $testimonials = Testimonial::where('is_published', 1)
+        $testimonials = Testimonial::with('alumnus:alumnus_id,name,photo,current_institution,major,graduation_year,achievement')
+            ->where('is_published', 1)
             ->orderBy('order')
             ->latest('testimonial_id')
             ->get([
-                'testimonial_id', 'name', 'role', 'content', 'photo', 'rating',
+                'testimonial_id', 'alumnus_id', 'name', 'role', 'content', 'photo', 'rating',
                 'university', 'major', 'graduation_year',
             ]);
 

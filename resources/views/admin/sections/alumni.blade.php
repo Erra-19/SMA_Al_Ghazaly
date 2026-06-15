@@ -19,13 +19,13 @@
         <div x-show="!loading" class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50 border-b border-gray-200">
-                    <tr><th class="adm-th">Nama</th><th class="adm-th">Angkatan</th><th class="adm-th">Pekerjaan / Kampus</th><th class="adm-th">Lokasi</th><th class="adm-th"></th></tr>
+                    <tr><th class="adm-th">Nama</th><th class="adm-th">Angkatan</th><th class="adm-th">Pekerjaan / Kampus</th><th class="adm-th">Testimoni</th><th class="adm-th"></th></tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     <template x-if="items.length === 0">
                         <tr><td colspan="5" class="td text-center text-gray-400 py-10">Belum ada data alumni.</td></tr>
                     </template>
-                    <template x-for="item in items" :key="item.id">
+                    <template x-for="item in items" :key="item.alumnus_id ?? item.id">
                         <tr class="adm-tr">
                             <td class="adm-td">
                                 <div class="flex items-center gap-3">
@@ -36,12 +36,27 @@
                                         <div class="h-9 w-9 rounded-full bg-green-100 flex items-center justify-center text-xs font-bold text-green-700 shrink-0"
                                             x-text="item.name.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase()"></div>
                                     </template>
-                                    <span class="font-medium text-gray-900" x-text="item.name"></span>
+                                    <div>
+                                        <span class="font-medium text-gray-900" x-text="item.name"></span>
+                                        <template x-if="!item.is_published">
+                                            <span class="ml-1.5 badge badge-gray text-[9px]">Tersembunyi</span>
+                                        </template>
+                                    </div>
                                 </div>
                             </td>
                             <td class="adm-td" x-text="item.graduation_year ?? item.year ?? '-'"></td>
-                            <td class="td text-gray-600" x-text="item.occupation ?? item.college ?? '-'"></td>
-                            <td class="td text-gray-500" x-text="item.location ?? item.city ?? '-'"></td>
+                            <td class="td text-gray-600" x-text="item.occupation ?? item.current_institution ?? '-'"></td>
+                            <td class="adm-td">
+                                <template x-if="item.testimonial">
+                                    <span class="badge badge-green text-[9px]">
+                                        <svg class="h-2.5 w-2.5 mr-0.5 inline" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                        Ada
+                                    </span>
+                                </template>
+                                <template x-if="!item.testimonial">
+                                    <span class="text-[10px] text-gray-300">—</span>
+                                </template>
+                            </td>
                             <td class="adm-td">
                                 <div class="flex items-center gap-1">
                                     <button @click="edit(item)" class="adm-btn-ghost adm-btn-ghost text-blue-500 hover:bg-blue-50">

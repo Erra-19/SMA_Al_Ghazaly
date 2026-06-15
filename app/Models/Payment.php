@@ -22,8 +22,20 @@ class Payment extends Model
         'paid_at',
         'expired_at',
         'snap_token',
+        'proof_url',
+        'rejected_reason',
         'metadata',
     ];
+
+    public function getIdAttribute(): int
+    {
+        return $this->payment_id;
+    }
+
+    public function hasProof(): bool
+    {
+        return ! empty($this->proof_url);
+    }
 
     protected $casts = [
         'amount'   => 'decimal:2',

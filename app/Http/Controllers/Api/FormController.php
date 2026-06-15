@@ -14,7 +14,7 @@ class FormController extends Controller
     {
         $form = Form::where('slug', $slug)
             ->where('is_active', 1)
-            ->firstOrFail(['form_id', 'name', 'slug', 'fields']);
+            ->firstOrFail(['form_id', 'name', 'type', 'slug', 'fields', 'steps', 'description']);
 
         return response()->json($form);
     }

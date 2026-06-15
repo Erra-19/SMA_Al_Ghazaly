@@ -12,6 +12,10 @@ import SchoolFacilities from './components/SchoolFacilities';
 import SchoolContact from './components/SchoolContact';
 import SchoolRegistrationForm from './components/SchoolRegistrationForm';
 import PPDBStatusCheck from './components/PPDBStatusCheck';
+import AlbumGallery from './components/AlbumGallery';
+import AlumniPage from './components/AlumniPage';
+import NewsPage from './components/NewsPage';
+import AcademicCalendarPage from './components/AcademicCalendarPage';
 import Footer from './components/Footer';
 import PopupModal from './components/PopupModal';
 import { Announcement, EventActivity, Post } from './types';
@@ -102,7 +106,16 @@ export default function App() {
       getSettings(),
     ]).then(([ann, evt, art, tes, cfg]) => {
       if (ann.status === 'fulfilled') setAnnouncements(ann.value);
-      if (evt.status === 'fulfilled') setEvents(evt.value);
+      if (evt.status === 'fulfilled') {
+        const todayIso = new Date().toISOString().split('T')[0];
+        const sorted = [...evt.value].sort((a, b) => (a.startIso || '').localeCompare(b.startIso || ''));
+        const upcoming = sorted.filter(e => {
+          const end = e.endIso || e.startIso;
+          return !end || end >= todayIso;
+        });
+        // show upcoming; if none, fallback to 5 most recent
+        setEvents(upcoming.length > 0 ? upcoming.slice(0, 5) : sorted.slice(-5).reverse());
+      }
       if (art.status === 'fulfilled') setPosts(art.value);
       if (tes.status === 'fulfilled') setTestimonials(tes.value);
       if (cfg.status === 'fulfilled') setSettings(cfg.value);
@@ -131,8 +144,16 @@ export default function App() {
         <SchoolFacilities />
       ) : activeTab === 'kontak' ? (
         <SchoolContact />
+      ) : activeTab === 'galeri' ? (
+        <AlbumGallery />
+      ) : activeTab === 'berita' ? (
+        <NewsPage />
+      ) : activeTab === 'kalender' ? (
+        <AcademicCalendarPage />
       ) : activeTab === 'pendaftaran' ? (
         <SchoolRegistrationForm />
+      ) : activeTab === 'alumni' ? (
+        <AlumniPage />
       ) : (
         <>
 
@@ -161,12 +182,15 @@ export default function App() {
           />
 
           {/* 6. Social testimony slider feedback */}
-          <AlumniTestimonials items={testimonials} />
+          <AlumniTestimonials
+            items={testimonials}
+            onViewAll={() => { setActiveTab('alumni'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+          />
         </>
       )}
 
       {/* 7. Full context modern footer */}
-      <Footer />
+      <Footer onTabChange={setActiveTab} />
 
       {/* 8. Modular detail dialogue context modal list */}
       <PopupModal

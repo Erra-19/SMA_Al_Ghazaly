@@ -5,9 +5,10 @@ import { Testimonial } from '../types';
 
 interface AlumniTestimonialsProps {
   items?: Testimonial[];
+  onViewAll?: () => void;
 }
 
-export default function AlumniTestimonials({ items = [] }: AlumniTestimonialsProps) {
+export default function AlumniTestimonials({ items = [], onViewAll }: AlumniTestimonialsProps) {
   const [activeGroupIndex, setActiveGroupIndex] = useState(0);
 
   // Group testimonials in pairs of 2
@@ -167,6 +168,20 @@ export default function AlumniTestimonials({ items = [] }: AlumniTestimonialsPro
             </div>
           </div>
         </div>
+
+        {/* View all alumni link */}
+        {onViewAll && (
+          <div className="mt-8 text-center">
+            <button
+              id="alumni-view-all-btn"
+              onClick={onViewAll}
+              className="inline-flex items-center gap-2 bg-white border border-slate-200 hover:border-primary-green hover:text-primary-green text-slate-700 px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all shadow-sm"
+            >
+              Lihat Semua Alumni
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
 
       </div>
     </section>

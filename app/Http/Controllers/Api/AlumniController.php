@@ -11,7 +11,8 @@ class AlumniController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $alumni = Alumnus::where('is_published', 1)
+        $alumni = Alumnus::with('testimonial:testimonial_id,alumnus_id,content,rating')
+            ->where('is_published', 1)
             ->when($request->year, fn ($q) => $q->where('graduation_year', $request->year))
             ->when($request->search, fn ($q) => $q->where('name', 'like', "%{$request->search}%"))
             ->orderByDesc('graduation_year')

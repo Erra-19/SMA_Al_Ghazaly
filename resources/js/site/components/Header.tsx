@@ -112,7 +112,7 @@ export default function Header({
   const handleNavClick = (id: string, hash: string) => {
     setActiveTab(id);
     setIsOpen(false);
-    
+
     if (id === 'profil' || id === 'program' || id === 'home' || id === 'pengajar' || id === 'fasilitas' || id === 'kontak') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {

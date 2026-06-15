@@ -1,4 +1,4 @@
-import { Announcement, EventActivity, Post, Testimonial } from './types';
+import { Announcement, AlumnusItem, EventActivity, Post, Testimonial } from './types';
 
 type Paginated<T> = {
   data?: T[];
@@ -112,6 +112,44 @@ export async function getArticles(): Promise<Post[]> {
   }));
 }
 
+export async function getPosts(type?: string): Promise<Post[]> {
+  const params = new URLSearchParams({ per_page: '30' });
+  if (type) params.set('type', type);
+  const payload = await request<Paginated<any>>(`/api/posts?${params.toString()}`);
+
+  return collection(payload).map((post) => ({
+    id: String(post.post_id || post.id || post.slug),
+    title: post.title,
+    category: post.category || post.categories?.[0]?.category_name || 'Berita',
+    date: formatDate(post.published_at || post.created_at),
+    excerpt: post.summary || post.excerpt || String(post.content || '').replace(/<[^>]*>/g, '').slice(0, 180),
+    content: post.content || post.summary || post.excerpt || '',
+    readTime: '5 Menit Baca',
+    image: post.thumbnail || '',
+  }));
+}
+
+export async function getAlumni(): Promise<AlumnusItem[]> {
+  const payload = await request<any[] | Paginated<any>>('/api/alumni?per_page=50');
+
+  return collection(payload).map((item) => ({
+    id: String(item.alumnus_id || item.id),
+    name: item.name,
+    graduation_year: item.graduation_year,
+    photo: item.photo || undefined,
+    current_institution: item.current_institution || item.occupation || undefined,
+    major: item.major || undefined,
+    achievement: item.achievement || item.story || undefined,
+    testimonial: item.testimonial
+      ? {
+          id: String(item.testimonial.testimonial_id || item.testimonial.id),
+          quote: item.testimonial.content || item.testimonial.quote || '',
+          rating: item.testimonial.rating ?? undefined,
+        }
+      : undefined,
+  }));
+}
+
 export async function getTestimonials(): Promise<Testimonial[]> {
   const payload = await request<any[] | Paginated<any>>('/api/testimonials');
 
@@ -190,11 +228,29 @@ export async function getAlbums() {
 
   return collection(payload).map((item) => ({
     id: String(item.album_id || item.id || item.slug),
+    slug: item.slug || '',
     title: item.title,
     description: item.description || '',
     image: item.cover || item.cover_image || '',
     badge: 'Galeri',
   }));
+}
+
+export async function getAlbum(slug: string) {
+  const data = await request<any>(`/api/albums/${encodeURIComponent(slug)}`);
+  return {
+    id: String(data.album_id || data.id),
+    slug: data.slug || slug,
+    title: data.title,
+    description: data.description || '',
+    cover: data.cover || data.cover_image || '',
+    medias: (data.medias || []).map((m: any) => ({
+      id: String(m.media_id || m.id),
+      url: m.url || (m.path ? `/storage/${m.path}` : ''),
+      filename: m.filename || m.name || '',
+      mime_type: m.mime_type || 'image/jpeg',
+    })),
+  };
 }
 
 export async function getSettings(): Promise<Record<string, string>> {
@@ -208,6 +264,30 @@ export async function submitContact(payload: Record<string, string>) {
   });
 }
 
+export async function getFormConfig(slug: string): Promise<any | null> {
+  try {
+    return await request<any>(`/api/forms/${slug}`);
+  } catch {
+    return null;
+  }
+}
+
+export async function uploadFormFile(file: File, fieldKey: string, fieldLabel: string) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('field_key', fieldKey);
+  fd.append('field_label', fieldLabel);
+  const res = await fetch('/api/ppdb/upload-file', { method: 'POST', body: fd });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({})) as { message?: string };
+    throw new Error(err.message || 'Gagal mengupload file.');
+  }
+  return res.json() as Promise<{
+    url: string; path: string; field_key: string; field_label: string;
+    original_name: string; mime_type: string; file_size: number;
+  }>;
+}
+
 export async function submitRegistration(payload: Record<string, unknown>) {
   return request<{ registration_number: string; registration_id: number }>('/api/registrations', {
     method: 'POST',
@@ -217,6 +297,37 @@ export async function submitRegistration(payload: Record<string, unknown>) {
 
 export async function checkRegistrationStatus(number: string) {
   return request<any>(`/api/registrations/${encodeURIComponent(number)}/status`);
+}
+
+export async function submitPaymentProof(regNumber: string, proof: File | null, notes: string) {
+  const fd = new FormData();
+  if (proof) fd.append('proof', proof);
+  if (notes) fd.append('notes', notes);
+  const response = await fetch(`/api/registrations/${encodeURIComponent(regNumber)}/payment-proof`, {
+    method: 'POST',
+    headers: { Accept: 'application/json' },
+    body: fd,
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.message || 'Gagal mengirim bukti pembayaran.');
+  }
+  return response.json();
+}
+
+export async function getPublicSettings(): Promise<Record<string, string>> {
+  try {
+    const data = await request<any>('/api/settings');
+    if (Array.isArray(data)) return Object.fromEntries(data.map((s: any) => [s.key, s.value ?? '']));
+    if (data && typeof data === 'object') {
+      const flat: Record<string, string> = {};
+      Object.values(data).forEach((group: any) => {
+        if (Array.isArray(group)) group.forEach((s: any) => { flat[s.key] = s.value ?? ''; });
+      });
+      return flat;
+    }
+    return {};
+  } catch { return {}; }
 }
 
 export interface SiteStats {
@@ -243,15 +354,24 @@ export async function getAcademicCalendars(academicYear?: string) {
   const payload = await request<any[]>(`/api/academic-calendars${query}`);
   const items = Array.isArray(payload) ? payload : [];
 
-  return items.map((item) => ({
-    id:          String(item.calendar_id || item.id),
-    title:       item.title,
-    date:        calendarDate(item.start_date),
-    endDate:     item.end_date && item.end_date !== item.start_date ? calendarDate(item.end_date) : null,
-    category:    item.category || 'Akademik',
-    color:       item.color || 'green',
-    location:    'SMA Al-Ghazaly Bogor',
-    time:        'Sesuai jadwal',
-    description: item.description || '',
-  }));
+  return items.map((item) => {
+    // API returns full ISO datetime ("2025-03-28T00:00:00.000000Z") — strip to date-only
+    const startIso: string | null = item.start_date ? String(item.start_date).substring(0, 10) : null;
+    const endIso: string | null   = item.end_date   ? String(item.end_date).substring(0, 10)   : null;
+    const isRange = startIso && endIso && endIso !== startIso;
+
+    return {
+      id:          String(item.calendar_id || item.id),
+      title:       item.title,
+      date:        calendarDate(startIso || item.start_date),
+      endDate:     isRange ? calendarDate(endIso!) : null,
+      startIso,
+      endIso:      isRange ? endIso : null,
+      category:    item.category || 'Akademik',
+      color:       item.color || 'green',
+      location:    'SMA Al-Ghazaly Bogor',
+      time:        'Sesuai jadwal',
+      description: item.description || '',
+    };
+  });
 }

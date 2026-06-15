@@ -19,7 +19,7 @@
                 <template x-if="items.length === 0">
                     <tr><td colspan="5" class="td py-10 text-center text-gray-400">Belum ada program.</td></tr>
                 </template>
-                <template x-for="item in items" :key="item.id">
+                <template x-for="item in items" :key="item.program_id ?? item.id">
                     <tr class="adm-tr">
                         <td class="adm-td">
                             <p class="font-medium text-gray-900" x-text="item.title"></p>

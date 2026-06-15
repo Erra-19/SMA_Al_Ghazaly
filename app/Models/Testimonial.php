@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasApiId;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Testimonial extends Model
 {
@@ -14,6 +15,7 @@ class Testimonial extends Model
     protected $appends = ['id'];
 
     protected $fillable = [
+        'alumnus_id',
         'name',
         'role',
         'photo',
@@ -28,4 +30,9 @@ class Testimonial extends Model
     protected $casts = [
         'is_published' => 'boolean',
     ];
+
+    public function alumnus(): BelongsTo
+    {
+        return $this->belongsTo(Alumnus::class, 'alumnus_id', 'alumnus_id');
+    }
 }

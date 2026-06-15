@@ -87,6 +87,110 @@
                 </div>
             </div>
 
+            {{-- Rekening Bank --}}
+            <div class="adm-card p-6">
+                <h3 class="text-sm font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100">Rekening Pembayaran PPDB</h3>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="adm-label">Nama Bank</label>
+                            <input type="text" x-model="form.bank_name" class="adm-input" placeholder="BCA / Mandiri / BNI...">
+                        </div>
+                        <div>
+                            <label class="adm-label">Nomor Rekening</label>
+                            <input type="text" x-model="form.bank_account_number" class="adm-input" placeholder="1234567890">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="adm-label">Atas Nama</label>
+                            <input type="text" x-model="form.bank_account_name" class="adm-input" placeholder="Yayasan Islamic Centre Al-Ghazaly">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Biaya PPDB --}}
+            <div class="adm-card p-6">
+                <h3 class="text-sm font-semibold text-gray-800 mb-1 pb-3 border-b border-gray-100">Biaya PPDB</h3>
+                <p class="text-[11px] text-gray-400 mb-4">Rincian biaya yang ditampilkan ke calon siswa setelah mendaftar.</p>
+
+                {{-- Daftar Item Biaya --}}
+                <div class="mb-4 space-y-2">
+                    <template x-if="ppdbFees.length === 0">
+                        <p class="text-xs text-gray-400 italic py-2">Belum ada item biaya.</p>
+                    </template>
+                    <template x-for="(fee, idx) in ppdbFees" :key="idx">
+                        <div class="flex items-center gap-2">
+                            <input type="text" x-model="fee.name" class="adm-input flex-1" placeholder="Nama biaya (mis. Biaya Pendaftaran)">
+                            <div class="flex items-center border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-green-300 w-40 bg-white shrink-0">
+                                <span class="px-2.5 text-xs text-gray-500 bg-gray-50 border-r border-gray-200 self-stretch flex items-center shrink-0 select-none">Rp</span>
+                                <input type="number" x-model="fee.amount" class="flex-1 px-2 py-2 text-sm outline-none min-w-0" placeholder="500000" min="0" step="1000">
+                            </div>
+                            <button type="button" @click="removeFee(idx)"
+                                class="h-8 w-8 shrink-0 flex items-center justify-center rounded-lg text-red-400 hover:bg-red-50 transition">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="flex items-center justify-between mb-5">
+                    <button type="button" @click="addFee()"
+                        class="flex items-center gap-1.5 text-xs font-semibold text-green-700 hover:text-green-800 transition">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Tambah Item Biaya
+                    </button>
+                    <template x-if="ppdbFees.length > 0">
+                        <p class="text-xs font-bold text-gray-700">
+                            Total: <span class="text-green-700" x-text="'Rp ' + fmtRp(ppdbFeesTotal)"></span>
+                        </p>
+                    </template>
+                </div>
+
+                {{-- Pilihan Pembayaran --}}
+                <div class="border-t border-gray-100 pt-4 space-y-4">
+                    <div>
+                        <label class="adm-label">Mode Pembayaran</label>
+                        <div class="flex flex-wrap gap-x-5 gap-y-2 mt-2">
+                            <label class="flex items-center gap-1.5 cursor-pointer">
+                                <input type="radio" x-model="form.ppdb_payment_mode" value="full" class="accent-green-600 cursor-pointer" style="width:14px;height:14px;">
+                                <span class="text-sm text-gray-700">Lunas saja</span>
+                            </label>
+                            <label class="flex items-center gap-1.5 cursor-pointer">
+                                <input type="radio" x-model="form.ppdb_payment_mode" value="installment" class="accent-green-600 cursor-pointer" style="width:14px;height:14px;">
+                                <span class="text-sm text-gray-700">Cicil saja</span>
+                            </label>
+                            <label class="flex items-center gap-1.5 cursor-pointer">
+                                <input type="radio" x-model="form.ppdb_payment_mode" value="both" class="accent-green-600 cursor-pointer" style="width:14px;height:14px;">
+                                <span class="text-sm text-gray-700">Lunas atau Cicil (pilihan siswa)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div x-show="form.ppdb_payment_mode === 'installment' || form.ppdb_payment_mode === 'both'"
+                         class="grid grid-cols-2 gap-4 bg-gray-50 rounded-xl p-4">
+                        <div>
+                            <label class="adm-label">Jumlah Cicilan</label>
+                            <input type="number" x-model="form.ppdb_installment_count" class="adm-input" min="2" max="12" placeholder="3">
+                            <p class="text-[10px] text-gray-400 mt-0.5">Termasuk DP sebagai cicilan pertama</p>
+                        </div>
+                        <div>
+                            <label class="adm-label">Uang Muka / DP</label>
+                            <div class="flex items-center border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-green-300 bg-white">
+                                <span class="px-2.5 text-xs text-gray-500 bg-gray-50 border-r border-gray-200 self-stretch flex items-center shrink-0 select-none">Rp</span>
+                                <input type="number" x-model="form.ppdb_installment_dp" class="flex-1 px-2 py-2 text-sm outline-none min-w-0" min="0" step="1000" placeholder="500000">
+                            </div>
+                        </div>
+                        <div class="col-span-2" x-show="ppdbFeesTotal > 0 && form.ppdb_installment_dp > 0 && form.ppdb_installment_count > 1">
+                            <p class="text-[11px] text-blue-600 bg-blue-50 rounded-lg px-3 py-2">
+                                Preview: DP <strong x-text="'Rp ' + fmtRp(form.ppdb_installment_dp)"></strong> +
+                                <span x-text="ppdbInstallmentTerms"></span>× cicilan
+                                <strong x-text="'Rp ' + fmtRp(ppdbInstallmentAmount)"></strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- Sosial Media --}}
             <div class="adm-card p-6">
                 <h3 class="text-sm font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100">Sosial Media</h3>
@@ -221,14 +325,34 @@
                 </div>
             </div>
 
+            {{-- Statistik / KPI --}}
+            <div class="adm-card p-6">
+                <h3 class="text-sm font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100">Statistik Sekolah (KPI)</h3>
+                <p class="text-xs text-gray-400 mb-4">Angka yang ditampilkan di halaman Profil Sekolah. Contoh: "35+" atau "160+".</p>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="adm-label">Total Pengajar</label>
+                        <input type="text" x-model="form.stat_total_teachers" class="adm-input" placeholder="35+">
+                    </div>
+                    <div>
+                        <label class="adm-label">Total Siswa Baru (per tahun)</label>
+                        <input type="text" x-model="form.stat_total_new_students" class="adm-input" placeholder="160+">
+                    </div>
+                    <div>
+                        <label class="adm-label">Total Siswa Aktif</label>
+                        <input type="text" x-model="form.stat_total_students" class="adm-input" placeholder="480+">
+                    </div>
+                    <div>
+                        <label class="adm-label">Total Alumni</label>
+                        <input type="text" x-model="form.stat_total_alumni" class="adm-input" placeholder="1.200+">
+                    </div>
+                </div>
+            </div>
+
             {{-- Google Maps --}}
             <div class="adm-card p-6">
                 <h3 class="text-sm font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100">Lokasi</h3>
                 <div class="space-y-4">
-                    <div>
-                        <label class="adm-label">Google Maps Link (untuk tombol buka maps)</label>
-                        <input type="text" x-model="form.maps_url" class="adm-input" placeholder="https://www.google.com/maps/place/...">
-                    </div>
                     <div>
                         <label class="adm-label">Google Maps Embed URL (untuk iframe peta)</label>
                         <input type="text" x-model="form.maps_embed_url" class="adm-input" placeholder="https://www.google.com/maps/embed?pb=...">

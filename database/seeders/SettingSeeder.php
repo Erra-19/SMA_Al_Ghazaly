@@ -136,6 +136,10 @@ class SettingSeeder extends Seeder
                 'group' => 'general',
                 'is_public' => true,
             ],
+            ['key' => 'stat_total_teachers',     'value' => '35+',     'type' => 'text', 'group' => 'profile', 'is_public' => true],
+            ['key' => 'stat_total_new_students',  'value' => '160+',    'type' => 'text', 'group' => 'profile', 'is_public' => true],
+            ['key' => 'stat_total_students',      'value' => '480+',    'type' => 'text', 'group' => 'profile', 'is_public' => true],
+            ['key' => 'stat_total_alumni',        'value' => '1.200+',  'type' => 'text', 'group' => 'profile', 'is_public' => true],
         ];
 
         foreach ($settings as $setting) {

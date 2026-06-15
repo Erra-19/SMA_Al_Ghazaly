@@ -25,6 +25,8 @@ class Registration extends Model
         'tinggi_badan', 'berat_badan', 'jarak_sekolah', 'jarak_sekolah_km', 'waktu_tempuh', 'jumlah_saudara_kandung',
         // legacy parent fields
         'parent_name', 'parent_phone', 'parent_job',
+        // semua jawaban form dinamis
+        'form_data',
         'payment_total_amount', 'payment_paid_amount', 'payment_remaining_amount',
         'payment_status', 'payment_method',
         'status', 'submitted_at', 'verified_at', 'verified_by',
@@ -32,6 +34,7 @@ class Registration extends Model
 
     protected $casts = [
         'birth_date' => 'date',
+        'form_data'  => 'array',
         'payment_total_amount' => 'decimal:2',
         'payment_paid_amount' => 'decimal:2',
         'payment_remaining_amount' => 'decimal:2',

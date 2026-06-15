@@ -60,10 +60,12 @@ Route::post('forms/{slug}/submit', [FormController::class, 'submit']);
 Route::post('contact', [ContactController::class, 'store']);
 
 // PPDB — publik
+Route::post('ppdb/upload-file', [RegistrationController::class, 'uploadFile']);
 Route::post('registrations', [RegistrationController::class, 'store']);
 Route::post('registrations/{id}/documents', [RegistrationController::class, 'uploadDocuments']);
 Route::post('registrations/{id}/payment', [RegistrationController::class, 'createPayment']);
 Route::get('registrations/{number}/status', [RegistrationController::class, 'checkStatus']);
+Route::post('registrations/{number}/payment-proof', [RegistrationController::class, 'submitPaymentProof']);
 
 // ─── Admin endpoints (auth + sanctum) ────────────────────────────────────────
 Route::middleware(['auth:sanctum', 'role:super_admin,admin,operator_ppdb'])->prefix('admin')->name('admin.')->group(function () {
@@ -76,9 +78,29 @@ Route::middleware(['auth:sanctum', 'role:super_admin,admin,operator_ppdb'])->pre
         Route::apiResource('pages', Admin\PageController::class);
         Route::apiResource('programs', Admin\ProgramController::class)->except('show');
         Route::apiResource('facilities', Admin\FacilityController::class)->except('show');
+        Route::get('teachers/template', [Admin\TeacherImportController::class, 'template']);
+        Route::post('teachers/import', [Admin\TeacherImportController::class, 'import']);
         Route::apiResource('teachers', Admin\TeacherController::class);
         Route::apiResource('albums', Admin\AlbumController::class);
         Route::apiResource('testimonials', Admin\TestimonialController::class)->except('show');
+        Route::get('forms', [Admin\FormController::class, 'index']);
+        Route::post('forms', [Admin\FormController::class, 'store']);
+        Route::put('forms/{id}', [Admin\FormController::class, 'update']);
+        Route::patch('forms/{id}/activate', [Admin\FormController::class, 'activate']);
+        Route::delete('forms/{id}', [Admin\FormController::class, 'destroy']);
+
+        // Respon form submission (form builder)
+        Route::get('form-submissions', [Admin\FormSubmissionController::class, 'index']);
+        Route::get('form-submissions/{id}', [Admin\FormSubmissionController::class, 'show']);
+        Route::delete('form-submissions/{id}', [Admin\FormSubmissionController::class, 'destroy']);
+
+        Route::get('students/template', [Admin\StudentImportController::class, 'template']);
+        Route::post('students/import', [Admin\StudentImportController::class, 'import']);
+        Route::get('students', [Admin\StudentController::class, 'index']);
+        Route::post('students', [Admin\StudentController::class, 'store']);
+        Route::put('students/{id}', [Admin\StudentController::class, 'update']);
+        Route::delete('students/{id}', [Admin\StudentController::class, 'destroy']);
+
         Route::get('academic-calendars', [AdminAcademicCalendarController::class, 'index']);
         Route::post('academic-calendars', [AdminAcademicCalendarController::class, 'store']);
         Route::put('academic-calendars/{id}', [AdminAcademicCalendarController::class, 'update']);
@@ -101,11 +123,22 @@ Route::middleware(['auth:sanctum', 'role:super_admin,admin,operator_ppdb'])->pre
     Route::get('payments', [Admin\PaymentController::class, 'index']);
     Route::get('payments/{id}', [Admin\PaymentController::class, 'show']);
     Route::patch('payments/{id}', [Admin\PaymentController::class, 'update']);
+    Route::patch('payments/{id}/reject', [Admin\PaymentController::class, 'reject']);
 
     Route::middleware('role:super_admin,admin')->group(function () {
+        // Pesan publik (contact form)
         Route::get('messages', [Admin\MessageController::class, 'index']);
         Route::get('messages/{id}', [Admin\MessageController::class, 'show']);
         Route::delete('messages/{id}', [Admin\MessageController::class, 'destroy']);
+
+        // Pesan internal admin ke admin
+        Route::get('internal-messages/inbox',        [Admin\InternalMessageController::class, 'inbox']);
+        Route::get('internal-messages/sent',         [Admin\InternalMessageController::class, 'sent']);
+        Route::get('internal-messages/unread-count', [Admin\InternalMessageController::class, 'unreadCount']);
+        Route::get('internal-messages/admins',       [Admin\InternalMessageController::class, 'adminList']);
+        Route::post('internal-messages',             [Admin\InternalMessageController::class, 'store']);
+        Route::get('internal-messages/{id}',         [Admin\InternalMessageController::class, 'show']);
+        Route::delete('internal-messages/{id}',      [Admin\InternalMessageController::class, 'destroy']);
     });
 
     Route::middleware('role:super_admin')->group(function () {

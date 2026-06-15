@@ -14,17 +14,30 @@ class AdminUserSeeder extends Seeder
         $superAdminRoleId = DB::table('roles')
             ->where('name', 'super_admin')
             ->value('role_id');
+	$adminRoleId = DB::table('roles')
+	    ->where('name', 'admin')
+	    ->value('role_id');
 
         User::updateOrCreate(
+            ['email' => 'superadmin@alghazaly.test'],
             [
-                'email' => 'admin@alghazaly.test',
-            ],
+                'name'      => 'Super Admin',
+                'nisn'      => null,
+                'nip'       => null,
+                'password'  => Hash::make('Erri1904!!'),
+                'role_id'   => $superAdminRoleId,
+                'is_active' => true,
+            ]
+        );
+
+        User::updateOrCreate(
+            ['email' => 'admin@alghazaly.test'],
             [
-                'name' => 'Super Admin',
-                'nisn' => null,
-                'nip' => null,
-                'password' => Hash::make('Erri1904!!'),
-                'role_id' => $superAdminRoleId,
+                'name'      => 'Admin',
+                'nisn'      => null,
+                'nip'       => null,
+                'password'  => Hash::make('Alghazaly!!'),
+                'role_id'   => $adminRoleId,
                 'is_active' => true,
             ]
         );

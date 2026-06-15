@@ -14,7 +14,7 @@
             </thead>
             <tbody class="divide-y divide-gray-100">
                 <template x-if="items.length === 0"><tr><td colspan="5" class="td py-10 text-center text-gray-400">Belum ada fasilitas.</td></tr></template>
-                <template x-for="item in items" :key="item.id">
+                <template x-for="item in items" :key="item.facility_id ?? item.id">
                     <tr class="adm-tr">
                         <td class="adm-td"><p class="font-medium text-gray-900" x-text="item.name"></p><p class="text-xs text-gray-400" x-text="item.short_desc || '-'"></p></td>
                         <td class="adm-td" x-text="item.category"></td>

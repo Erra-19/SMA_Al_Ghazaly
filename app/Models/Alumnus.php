@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasApiId;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Alumnus extends Model
 {
@@ -36,5 +37,10 @@ class Alumnus extends Model
     public function getStoryAttribute(): ?string
     {
         return $this->achievement;
+    }
+
+    public function testimonial(): HasOne
+    {
+        return $this->hasOne(Testimonial::class, 'alumnus_id', 'alumnus_id');
     }
 }

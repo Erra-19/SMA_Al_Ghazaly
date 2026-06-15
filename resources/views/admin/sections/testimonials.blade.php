@@ -75,6 +75,20 @@
                 </div>
                 <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
                     <div class="grid grid-cols-2 gap-4">
+
+                        {{-- Alumnus Picker --}}
+                        <div class="col-span-2">
+                            <label class="adm-label">Hubungkan ke Alumni</label>
+                            <select x-model="form.alumnus_id" @change="onAlumnusChange()" class="adm-select">
+                                <option :value="null">— Tidak ditautkan ke alumni —</option>
+                                <template x-for="a in alumniList" :key="a.alumnus_id ?? a.id">
+                                    <option :value="a.alumnus_id ?? a.id"
+                                        x-text="`${a.name} (${a.graduation_year ?? '-'})`"></option>
+                                </template>
+                            </select>
+                            <p class="text-[10px] text-gray-400 mt-1">Pilih alumni untuk auto-isi nama, foto, kampus, jurusan, dan tahun lulus.</p>
+                        </div>
+
                         <div>
                             <label class="adm-label">Nama Lengkap <span class="text-red-500">*</span></label>
                             <input type="text" x-model="form.name" class="adm-input" placeholder="Nama alumni">

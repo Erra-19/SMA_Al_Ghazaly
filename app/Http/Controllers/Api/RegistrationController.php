@@ -8,8 +8,10 @@ use App\Models\Registration;
 use App\Models\RegistrationDocument;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Models\Setting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Midtrans\Config as MidtransConfig;
 use Midtrans\Snap;
@@ -17,8 +19,51 @@ use Throwable;
 
 class RegistrationController extends Controller
 {
+    /**
+     * Map kunci form_data ke kolom fixed di tabel registrations.
+     * Admin bebas pakai key apapun, kunci di sini akan di-copy ke kolom DB.
+     */
+    private const FIELD_MAP = [
+        'student_name'    => 'student_name',
+        'nama_lengkap'    => 'student_name',
+        'full_name'       => 'student_name',
+        'nisn'            => 'nisn',
+        'nik'             => 'nik',
+        'birth_place'     => 'birth_place',
+        'tempat_lahir'    => 'birth_place',
+        'birth_date'      => 'birth_date',
+        'tanggal_lahir'   => 'birth_date',
+        'gender'          => 'gender',
+        'jenis_kelamin'   => 'gender',
+        'agama'           => 'agama',
+        'address'         => 'address',
+        'alamat'          => 'address',
+        'phone'           => 'phone',
+        'no_hp'           => 'phone',
+        'email'           => 'email',
+        'previous_school' => 'previous_school',
+        'asal_sekolah'    => 'previous_school',
+        'academic_year'   => 'academic_year',
+        'tahun_ajaran'    => 'academic_year',
+        'wave'            => 'wave',
+        'gelombang'       => 'wave',
+        'major_choice'    => 'major_choice',
+        'jurusan'         => 'major_choice',
+        'parent_name'     => 'parent_name',
+        'nama_ayah'       => 'nama_ayah',
+        'nama_ibu'        => 'nama_ibu',
+        'parent_phone'    => 'parent_phone',
+        'parent_job'      => 'parent_job',
+    ];
+
     public function store(Request $request): JsonResponse
     {
+        // ── Mode form_data (form dinamis dari admin) ──────────────────────────
+        if ($request->has('form_data') && is_array($request->form_data)) {
+            return $this->storeFromDynamicForm($request);
+        }
+
+        // ── Mode legacy (field flat langsung) ─────────────────────────────────
         $request->validate([
             'student_name'    => 'required|string|max:150',
             'nisn'            => 'nullable|string|max:20',
@@ -103,6 +148,28 @@ class RegistrationController extends Controller
             'registration_number' => $registration->registration_number,
             'registration_id'     => $registration->registration_id,
         ], 201);
+    }
+
+    public function uploadFile(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file'        => 'required|file|mimes:jpg,jpeg,png,webp,pdf|max:5120',
+            'field_key'   => 'nullable|string|max:100',
+            'field_label' => 'nullable|string|max:200',
+        ]);
+
+        $file = $request->file('file');
+        $path = $file->store('ppdb-documents', 'public');
+
+        return response()->json([
+            'url'           => Storage::url($path),
+            'path'          => $path,
+            'field_key'     => $request->input('field_key', ''),
+            'field_label'   => $request->input('field_label', ''),
+            'original_name' => $file->getClientOriginalName(),
+            'mime_type'     => $file->getMimeType(),
+            'file_size'     => $file->getSize(),
+        ]);
     }
 
     public function uploadDocuments(Request $request, int $id): JsonResponse
@@ -220,6 +287,121 @@ class RegistrationController extends Controller
         }
         return response()->json([...$payment->fresh()->toArray(),
             'payment_summary' => $registration->fresh('payments')->syncPaymentSummary($paymentMethod)]);
+    }
+
+    private function storeFromDynamicForm(Request $request): JsonResponse
+    {
+        $request->validate([
+            'form_data'   => 'required|array',
+            'form_data.*' => 'nullable',
+        ]);
+
+        $formData = $request->form_data;
+
+        // Wajib: nama siswa harus ada di form_data
+        $studentName = null;
+        foreach (array_keys(self::FIELD_MAP) as $key) {
+            if (self::FIELD_MAP[$key] === 'student_name' && ! empty($formData[$key])) {
+                $studentName = $formData[$key];
+                break;
+            }
+        }
+
+        if (! $studentName) {
+            return response()->json(['message' => 'Nama siswa wajib diisi (gunakan key: student_name atau nama_lengkap).'], 422);
+        }
+
+        // Map form_data keys ke kolom fixed
+        $mapped = ['form_data' => $formData];
+        foreach ($formData as $key => $value) {
+            $col = self::FIELD_MAP[$key] ?? null;
+            if ($col && Schema::hasColumn('registrations', $col)) {
+                $mapped[$col] = $value;
+            }
+        }
+
+        $mapped['registration_number'] = $this->generateRegistrationNumber();
+        $mapped['status']       = 'submitted';
+        $mapped['submitted_at'] = now();
+
+        $registration = Registration::create($mapped);
+
+        // Simpan dokumen yang sudah diupload sebelumnya (dari field type='file')
+        $docs = array_filter((array) ($request->input('documents', [])), fn ($d) => !empty($d['path']));
+        if (!empty($docs)) {
+            foreach ($docs as $doc) {
+                RegistrationDocument::create([
+                    'registration_id' => $registration->registration_id,
+                    'document_type'   => $doc['field_label'] ?? $doc['field_key'] ?? 'Dokumen',
+                    'file_path'       => $doc['path'],
+                    'original_name'   => $doc['original_name'] ?? null,
+                    'mime_type'       => $doc['mime_type'] ?? null,
+                    'file_size'       => !empty($doc['file_size']) ? (int) $doc['file_size'] : null,
+                    'status'          => 'pending',
+                ]);
+            }
+            $registration->update(['status' => 'document_review']);
+        }
+
+        return response()->json([
+            'message'             => 'Pendaftaran berhasil. Simpan nomor pendaftaran Anda.',
+            'registration_number' => $registration->registration_number,
+            'registration_id'     => $registration->registration_id,
+        ], 201);
+    }
+
+    public function submitPaymentProof(Request $request, string $number): JsonResponse
+    {
+        $registration = Registration::where('registration_number', $number)->firstOrFail();
+
+        $request->validate([
+            'proof' => 'nullable|file|mimes:jpg,jpeg,png,webp,pdf|max:8192',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        $proofUrl = null;
+        if ($request->hasFile('proof')) {
+            $path     = $request->file('proof')->store('payment-proofs', 'public');
+            $proofUrl = Storage::url($path);
+        }
+
+        // Find pending payment or create one
+        $payment = Payment::where('registration_id', $registration->registration_id)
+            ->whereIn('status', ['pending', 'failed'])
+            ->latest('payment_id')
+            ->first();
+
+        $fee = (float) (Setting::where('key', 'ppdb_registration_fee')->value('value') ?? 0);
+
+        if (! $payment) {
+            $payment = Payment::create([
+                'registration_id' => $registration->registration_id,
+                'order_id'        => $this->generateOrderId($registration),
+                'amount'          => $fee,
+                'paid_amount'     => 0,
+                'payment_type'    => 'bank_transfer',
+                'status'          => 'pending',
+                'proof_url'       => $proofUrl,
+                'rejected_reason' => null,
+                'metadata'        => [
+                    'registration_number' => $registration->registration_number,
+                    'student_name'        => $registration->student_name,
+                ],
+            ]);
+        } else {
+            $payment->update([
+                'status'          => 'pending',
+                'proof_url'       => $proofUrl ?? $payment->proof_url,
+                'rejected_reason' => null,
+            ]);
+        }
+
+        $registration->syncPaymentSummary();
+
+        return response()->json([
+            'message' => 'Bukti pembayaran berhasil dikirim. Harap tunggu konfirmasi dari admin.',
+            'payment' => $payment->fresh(),
+        ]);
     }
 
     private function generateRegistrationNumber(): string

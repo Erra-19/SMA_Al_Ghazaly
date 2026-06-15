@@ -15,6 +15,8 @@ export interface EventActivity {
   title: string;
   date: { day: string; month: string; year: string; };
   endDate?: { day: string; month: string; year: string; } | null;
+  startIso?: string;       // raw ISO date, e.g. "2025-07-14"
+  endIso?: string | null;  // raw ISO end date, null if single-day
   category: string;
   color?: string;
   location: string;
@@ -41,6 +43,21 @@ export interface Testimonial {
   year: string;
   quote: string;
   avatar: string;
+}
+
+export interface AlumnusItem {
+  id: string;
+  name: string;
+  graduation_year: number | string;
+  photo?: string;
+  current_institution?: string;
+  major?: string;
+  achievement?: string;
+  testimonial?: {
+    id: string;
+    quote: string;
+    rating?: number;
+  };
 }
 
 export interface ProgramUnggulan {

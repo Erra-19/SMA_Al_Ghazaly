@@ -137,15 +137,26 @@
                         </div>
                     </template>
                     <div class="p-4">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span x-show="ann.post_status || ann.category"
-                                class="px-2 py-0.5 rounded-full text-xs font-medium"
-                                :class="ann.post_status === 'Penting' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'"
-                                x-text="ann.post_status || ann.category?.name || ''"></span>
-                            <span class="text-xs text-gray-400" x-text="fmtDateShort(ann.published_at || ann.created_at)"></span>
+                        {{-- badges: categories + status --}}
+                        <div class="flex items-center gap-1.5 flex-wrap mb-2">
+                            <template x-for="cat in (ann.categories ?? []).slice(0,2)" :key="cat.category_id ?? cat.slug">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide bg-green-100 text-green-700"
+                                    x-text="cat.category_name"></span>
+                            </template>
+                            <template x-if="ann.post_status === 'Penting'">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide bg-red-100 text-red-600">Penting</span>
+                            </template>
                         </div>
-                        <h3 class="font-semibold text-gray-900 text-sm line-clamp-2 mb-1" x-text="ann.title"></h3>
-                        <p class="text-xs text-gray-500 line-clamp-2" x-text="ann.summary || excerpt(ann.content)"></p>
+                        <h3 class="font-semibold text-gray-900 text-sm line-clamp-2 mb-1.5" x-text="ann.title"></h3>
+                        <p class="text-xs text-gray-500 line-clamp-2 mb-3" x-text="ann.summary || excerpt(ann.content)"></p>
+                        {{-- footer: author + date --}}
+                        <div class="flex items-center justify-between pt-2.5 border-t border-gray-100">
+                            <div class="flex items-center gap-1.5 min-w-0">
+                                <svg class="h-3 w-3 text-gray-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                <span class="text-[10px] text-gray-400 font-medium truncate" x-text="ann.author?.name ?? 'Admin'"></span>
+                            </div>
+                            <span class="text-[10px] text-gray-400 shrink-0 ml-2" x-text="fmtDateShort(ann.published_at || ann.created_at)"></span>
+                        </div>
                     </div>
                 </div>
             </template>

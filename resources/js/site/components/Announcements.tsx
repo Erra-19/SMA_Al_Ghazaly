@@ -127,43 +127,50 @@ export default function Announcements({ onSelect, searchTerm: headerSearchTerm, 
                     transition={{ delay: i * 0.05 }}
                     className="group relative flex flex-col rounded-2xl border border-slate-200 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.015)] overflow-hidden hover:shadow-[0_12px_30px_rgba(0,0,0,0.035)] hover:border-slate-350 transition-all duration-300 transform hover:-translate-y-0.5 h-full"
                   >
-                    {/* Badge Floating */}
-                    <div className="absolute top-4 left-4 z-10 flex flex-wrap gap-1.5">
-                      <span className="inline-block rounded-full bg-primary-green px-3 py-1 text-[9px] font-black uppercase tracking-wider text-primary-white shadow-sm">
-                        {ann.category}
-                      </span>
-                      <span className={`inline-block rounded-full px-3 py-1 text-[9px] font-bold uppercase tracking-wider ${
-                        ann.status === 'Penting' ? 'bg-rose-500 text-white shadow-sm' : 'bg-slate-500 text-white shadow-sm'
-                      }`}>
-                        {ann.status}
-                      </span>
+                    {/* Image area — always renders (placeholder when no image) so badge always has space */}
+                    <div className="relative h-40 overflow-hidden shrink-0">
+                      {ann.image ? (
+                        <>
+                          <img
+                            src={ann.image}
+                            referrerPolicy="no-referrer"
+                            alt={ann.title}
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                        </>
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
+                          <svg className="h-14 w-14 text-green-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                          </svg>
+                        </div>
+                      )}
+                      {/* Badge floating over image/placeholder */}
+                      <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                        <span className="inline-block rounded-full bg-primary-green px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-primary-white shadow-sm">
+                          {ann.category}
+                        </span>
+                        {ann.status === 'Penting' && (
+                          <span className="inline-block rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider bg-rose-500 text-white shadow-sm">
+                            Penting
+                          </span>
+                        )}
+                      </div>
                     </div>
 
-                    {/* Image overlay card */}
-                    {ann.image && (
-                      <div className="relative h-44 overflow-hidden bg-slate-100">
-                        <img
-                          src={ann.image}
-                          referrerPolicy="no-referrer"
-                          alt={ann.title}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-102"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
-                      </div>
-                    )}
-
                     {/* Card Content Body */}
-                    <div className="flex-1 p-6 flex flex-col justify-between">
-                      <div className="space-y-3">
+                    <div className="flex-1 p-5 flex flex-col justify-between">
+                      <div className="space-y-2">
                         {/* Meta bar */}
-                        <div className="flex items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                          <span className="flex items-center gap-1.5">
-                            <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                        <div className="flex items-center gap-2.5 text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
                             {ann.date}
                           </span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1.5">
-                            <User className="h-3.5 w-3.5 text-slate-400" />
+                          <span>·</span>
+                          <span className="flex items-center gap-1">
+                            <User className="h-3 w-3" />
                             {ann.author}
                           </span>
                         </div>

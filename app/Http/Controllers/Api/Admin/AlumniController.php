@@ -11,7 +11,8 @@ class AlumniController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $alumni = Alumnus::when($request->year, fn ($q) => $q->where('graduation_year', $request->year))
+        $alumni = Alumnus::with('testimonial:testimonial_id,alumnus_id,content,rating,is_published')
+            ->when($request->year, fn ($q) => $q->where('graduation_year', $request->year))
             ->orderByDesc('graduation_year')
             ->paginate(15);
 
@@ -67,7 +68,7 @@ class AlumniController extends Controller
 
         $alumni->update($data);
 
-        return response()->json($alumni);
+        return response()->json($alumni->load('testimonial:testimonial_id,alumnus_id,content,rating,is_published'));
     }
 
     public function destroy(int $id): JsonResponse

@@ -67,9 +67,9 @@
         </div>
 
         {{-- Konten --}}
-        <div x-data="{ open: ['posts','categories','pages-cms','programs','facilities'].includes($store.adm.page) }">
+        <div x-data="{ open: ['posts','categories','programs','facilities','academic-calendars','form-builder','testimonials'].includes($store.adm.page) }">
             <button @click="open = !open" class="adm-sidebar-group w-full"
-                :style="['posts','categories','pages-cms','programs','facilities'].includes($store.adm.page) ? 'background:rgba(255,255,255,.06)' : ''">
+                :style="['posts','categories','programs','facilities','academic-calendars','form-builder','testimonials'].includes($store.adm.page) ? 'background:rgba(255,255,255,.06)' : ''">
                 <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
                 <span class="flex-1 text-left">Konten</span>
                 <svg class="h-3 w-3 transition-transform duration-200" :class="open && 'rotate-90'" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
@@ -77,36 +77,49 @@
             <div x-show="open" x-transition class="ml-[22px] mt-0.5 border-l pl-3 space-y-0.5" style="border-color:rgba(255,255,255,.1)">
                 <a @click.prevent="$store.adm.go('posts')" href="#" class="adm-sidebar-link text-[13px] py-1.5" :class="$store.adm.page === 'posts' ? 'active' : ''">Berita & Artikel</a>
                 <a @click.prevent="$store.adm.go('categories')" href="#" class="adm-sidebar-link text-[13px] py-1.5" :class="$store.adm.page === 'categories' ? 'active' : ''">Kategori</a>
-                <a @click.prevent="$store.adm.go('pages-cms')" href="#" class="adm-sidebar-link text-[13px] py-1.5" :class="$store.adm.page === 'pages-cms' ? 'active' : ''">Halaman Statis</a>
                 <a @click.prevent="$store.adm.go('programs')" href="#" class="adm-sidebar-link text-[13px] py-1.5" :class="$store.adm.page === 'programs' ? 'active' : ''">Program</a>
                 <a @click.prevent="$store.adm.go('facilities')" href="#" class="adm-sidebar-link text-[13px] py-1.5" :class="$store.adm.page === 'facilities' ? 'active' : ''">Fasilitas</a>
                 <a @click.prevent="$store.adm.go('academic-calendars')" href="#" class="adm-sidebar-link text-[13px] py-1.5" :class="$store.adm.page === 'academic-calendars' ? 'active' : ''">Kalender Akademik</a>
+                <a @click.prevent="$store.adm.go('form-builder')" href="#" class="adm-sidebar-link text-[13px] py-1.5" :class="$store.adm.page === 'form-builder' ? 'active' : ''">Form Builder</a>
+                <a @click.prevent="$store.adm.go('testimonials')" href="#" class="adm-sidebar-link text-[13px] py-1.5" :class="$store.adm.page === 'testimonials' ? 'active' : ''">Testimoni</a>
             </div>
         </div>
 
-        <a @click.prevent="$store.adm.go('teachers')" href="#" class="adm-sidebar-link" :class="$store.adm.page === 'teachers' ? 'active' : ''">
-            <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            Guru
-        </a>
-        <a @click.prevent="$store.adm.go('albums')" href="#" class="adm-sidebar-link" :class="$store.adm.page === 'albums' ? 'active' : ''">
-            <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            Album Foto
-        </a>
-        <a @click.prevent="$store.adm.go('testimonials')" href="#" class="adm-sidebar-link" :class="$store.adm.page === 'testimonials' ? 'active' : ''">
-            <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-            Testimoni
-        </a>
-        <a @click.prevent="$store.adm.go('alumni')" href="#" class="adm-sidebar-link" :class="$store.adm.page === 'alumni' ? 'active' : ''">
-            <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
-            Alumni
-        </a>
-        <a @click.prevent="$store.adm.go('media')" href="#" class="adm-sidebar-link" :class="$store.adm.page === 'media' ? 'active' : ''">
-            <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-            Media
-        </a>
+        {{-- Akademik --}}
+        <div x-data="{ open: ['teachers','students','alumni'].includes($store.adm.page) }">
+            <button @click="open = !open" class="adm-sidebar-group w-full"
+                :style="['teachers','students','alumni'].includes($store.adm.page) ? 'background:rgba(255,255,255,.06)' : ''">
+                <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span class="flex-1 text-left">Akademik</span>
+                <svg class="h-3 w-3 transition-transform duration-200" :class="open && 'rotate-90'" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <div x-show="open" x-transition class="ml-[22px] mt-0.5 border-l pl-3 space-y-0.5" style="border-color:rgba(255,255,255,.1)">
+                <a @click.prevent="$store.adm.go('teachers')" href="#" class="adm-sidebar-link text-[13px] py-1.5" :class="$store.adm.page === 'teachers' ? 'active' : ''">Guru</a>
+                <a @click.prevent="$store.adm.go('students')" href="#" class="adm-sidebar-link text-[13px] py-1.5" :class="$store.adm.page === 'students' ? 'active' : ''">Murid</a>
+                <a @click.prevent="$store.adm.go('alumni')" href="#" class="adm-sidebar-link text-[13px] py-1.5" :class="$store.adm.page === 'alumni' ? 'active' : ''">Alumni</a>
+            </div>
+        </div>
+
+        {{-- Galeri & Media --}}
+        <div x-data="{ open: ['albums','media'].includes($store.adm.page) }">
+            <button @click="open = !open" class="adm-sidebar-group w-full"
+                :style="['albums','media'].includes($store.adm.page) ? 'background:rgba(255,255,255,.06)' : ''">
+                <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span class="flex-1 text-left">Galeri & Media</span>
+                <svg class="h-3 w-3 transition-transform duration-200" :class="open && 'rotate-90'" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <div x-show="open" x-transition class="ml-[22px] mt-0.5 border-l pl-3 space-y-0.5" style="border-color:rgba(255,255,255,.1)">
+                <a @click.prevent="$store.adm.go('albums')" href="#" class="adm-sidebar-link text-[13px] py-1.5" :class="$store.adm.page === 'albums' ? 'active' : ''">Album Foto</a>
+                <a @click.prevent="$store.adm.go('media')" href="#" class="adm-sidebar-link text-[13px] py-1.5" :class="$store.adm.page === 'media' ? 'active' : ''">Media</a>
+            </div>
+        </div>
         <a @click.prevent="$store.adm.go('messages')" href="#" class="adm-sidebar-link" :class="$store.adm.page === 'messages' ? 'active' : ''">
             <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-            Pesan
+            <span class="flex-1">Pesan</span>
+            <template x-if="$store.adm.internalUnread > 0">
+                <span class="ml-auto min-w-[18px] h-[18px] rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center px-1"
+                    x-text="$store.adm.internalUnread > 99 ? '99+' : $store.adm.internalUnread"></span>
+            </template>
         </a>
         <a @click.prevent="$store.adm.go('settings')" href="#" class="adm-sidebar-link" :class="$store.adm.page === 'settings' ? 'active' : ''">
             <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -159,11 +172,12 @@
         @include('admin.sections.dashboard')
         @include('admin.sections.posts')
         @include('admin.sections.categories')
-        @include('admin.sections.pages-cms')
         @include('admin.sections.programs')
         @include('admin.sections.facilities')
         @include('admin.sections.academic-calendars')
+        @include('admin.sections.form-builder')
         @include('admin.sections.teachers')
+        @include('admin.sections.students')
         @include('admin.sections.albums')
         @include('admin.sections.testimonials')
         @include('admin.sections.alumni')

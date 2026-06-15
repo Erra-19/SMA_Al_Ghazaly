@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react';
 import { Building2, Phone, Mail, FileText, ArrowUp, Facebook, Twitter, Youtube, CheckCircle } from 'lucide-react';
 import { getSettings } from '../api';
 
-export default function Footer() {
+interface FooterProps {
+  onTabChange?: (tabId: string) => void;
+}
+
+export default function Footer({ onTabChange }: FooterProps) {
   const [settings, setSettings] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -183,19 +187,59 @@ export default function Footer() {
             <ul className="space-y-2.5 text-xs text-zinc-400 font-semibold">
               <li className="flex items-center gap-1.5">
                 <FileText className="h-3.5 w-3.5 text-zinc-600" />
-                <span>Kegiatan OSIS</span>
+                {onTabChange ? (
+                  <button
+                    id="foot-cat-galeri"
+                    onClick={() => { onTabChange('galeri'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                    className="hover:text-primary-green transition cursor-pointer text-left"
+                  >
+                    Galeri Foto
+                  </button>
+                ) : (
+                  <span>Galeri Foto</span>
+                )}
               </li>
               <li className="flex items-center gap-1.5">
                 <FileText className="h-3.5 w-3.5 text-zinc-600" />
-                <span>Artikel Pendidikan</span>
+                {onTabChange ? (
+                  <button
+                    id="foot-cat-berita"
+                    onClick={() => { onTabChange('berita'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                    className="hover:text-primary-green transition cursor-pointer text-left"
+                  >
+                    Halaman Berita
+                  </button>
+                ) : (
+                  <span>Halaman Berita</span>
+                )}
               </li>
               <li className="flex items-center gap-1.5">
                 <FileText className="h-3.5 w-3.5 text-zinc-600" />
-                <span>Karya Guru</span>
+                {onTabChange ? (
+                  <button
+                    id="foot-cat-kalender"
+                    onClick={() => { onTabChange('kalender'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                    className="hover:text-primary-green transition cursor-pointer text-left"
+                  >
+                    Kalender Pendidikan
+                  </button>
+                ) : (
+                  <span>Kalender Pendidikan</span>
+                )}
               </li>
               <li className="flex items-center gap-1.5">
                 <FileText className="h-3.5 w-3.5 text-zinc-600" />
-                <span>Galeri Foto</span>
+                {onTabChange ? (
+                  <button
+                    id="foot-cat-alumni"
+                    onClick={() => { onTabChange('alumni'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                    className="hover:text-primary-green transition cursor-pointer text-left"
+                  >
+                    Alumni Kami
+                  </button>
+                ) : (
+                  <span>Alumni Kami</span>
+                )}
               </li>
             </ul>
           </div>

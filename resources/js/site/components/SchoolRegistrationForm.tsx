@@ -1,4 +1,4 @@
-import { useState, FormEvent, ChangeEvent } from 'react';
+import { useState, useEffect, FormEvent, ChangeEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   CheckCircle, 
@@ -16,9 +16,241 @@ import {
   AlertCircle,
   Clock,
   QrCode,
-  Building
+  Building,
+  Upload,
+  FileCheck,
+  X
 } from 'lucide-react';
-import { submitRegistration } from '../api';
+import { submitRegistration, uploadFormFile, getFormConfig, submitPaymentProof, getPublicSettings } from '../api';
+
+// ─── Dynamic Form Types ───────────────────────────────────────────────────────
+interface DynamicField {
+  key: string;
+  label: string;
+  type: 'text' | 'textarea' | 'select' | 'radio' | 'date' | 'tel' | 'email' | 'number';
+  placeholder?: string;
+  required?: boolean;
+  options?: string[];
+}
+interface DynamicStep { label: string; short_label?: string; fields: DynamicField[]; }
+interface DynamicFormConfig { form_id: number; name: string; description?: string; steps: DynamicStep[]; }
+
+// ─── Dynamic Form Component ───────────────────────────────────────────────────
+interface UploadedFile {
+  url: string; path: string; field_key: string; field_label: string;
+  original_name: string; mime_type: string; file_size: number;
+}
+
+function DynamicRegistrationForm({ config }: { config: DynamicFormConfig }) {
+  const steps = config.steps;
+  const totalSteps = steps.length;
+  const [current, setCurrent] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [uploadedFiles, setUploadedFiles] = useState<Record<string, UploadedFile>>({});
+  const [uploadingFields, setUploadingFields] = useState<Record<string, boolean>>({});
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [doneCode, setDoneCode] = useState<string | null>(null);
+
+  const set = (key: string, val: string) => setAnswers(prev => ({ ...prev, [key]: val }));
+
+  const validate = () => {
+    const step = steps[current];
+    for (const f of step.fields) {
+      if (f.required) {
+        if (f.type === 'file') {
+          if (!uploadedFiles[f.key]) {
+            setError(`"${f.label}" wajib diupload.`);
+            return false;
+          }
+        } else if (!answers[f.key]?.trim()) {
+          setError(`"${f.label}" wajib diisi.`);
+          return false;
+        }
+      }
+    }
+    setError(null);
+    return true;
+  };
+
+  const next = () => { if (validate()) setCurrent(c => Math.min(c + 1, totalSteps - 1)); };
+  const back = () => { setCurrent(c => Math.max(c - 1, 0)); setError(null); };
+
+  const handleFileUpload = async (file: File, fieldKey: string, fieldLabel: string) => {
+    setUploadingFields(prev => ({ ...prev, [fieldKey]: true }));
+    setError(null);
+    try {
+      const res = await uploadFormFile(file, fieldKey, fieldLabel);
+      setUploadedFiles(prev => ({ ...prev, [fieldKey]: res }));
+    } catch (e: any) {
+      setError(e.message || 'Gagal mengupload file.');
+    } finally {
+      setUploadingFields(prev => ({ ...prev, [fieldKey]: false }));
+    }
+  };
+
+  const removeFile = (fieldKey: string) =>
+    setUploadedFiles(prev => { const n = { ...prev }; delete n[fieldKey]; return n; });
+
+  const submit = async () => {
+    if (!validate()) return;
+    setSubmitting(true);
+    try {
+      const documents = Object.values(uploadedFiles);
+      const res = await submitRegistration({
+        form_data: answers,
+        ...(documents.length > 0 ? { documents } : {}),
+      });
+      setDoneCode(res.registration_number);
+    } catch (e: any) {
+      setError(e.message || 'Gagal mengirim pendaftaran.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (doneCode) return (
+    <div className="text-center py-16 space-y-4">
+      <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center mx-auto">
+        <CheckCircle className="h-8 w-8 text-green-600" />
+      </div>
+      <h3 className="text-xl font-black text-slate-900">Pendaftaran Berhasil!</h3>
+      <p className="text-sm text-slate-500">Simpan nomor pendaftaran Anda:</p>
+      <div className="inline-block bg-slate-100 border border-slate-200 rounded-2xl px-8 py-4">
+        <span className="text-2xl font-black text-slate-900 tracking-widest">{doneCode}</span>
+      </div>
+      <p className="text-xs text-slate-400 max-w-sm mx-auto">Gunakan nomor ini untuk mengecek status pendaftaran pada halaman Cek Status PPDB.</p>
+    </div>
+  );
+
+  const step = steps[current];
+
+  return (
+    <div className="space-y-6">
+      {/* Step indicator */}
+      <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-1">
+        {steps.map((s, i) => (
+          <div key={i} className="flex items-center gap-1 shrink-0">
+            <div className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-black transition-all
+              ${i < current ? 'bg-primary-green text-white' : i === current ? 'bg-primary-green text-white ring-4 ring-primary-green/20' : 'bg-slate-100 text-slate-400'}`}>
+              {i < current ? <CheckCircle className="h-3.5 w-3.5" /> : i + 1}
+            </div>
+            <span className={`text-[10px] font-bold hidden sm:block ${i === current ? 'text-slate-900' : 'text-slate-400'}`}>
+              {s.short_label || s.label}
+            </span>
+            {i < steps.length - 1 && <div className={`h-px w-4 ${i < current ? 'bg-primary-green' : 'bg-slate-200'}`} />}
+          </div>
+        ))}
+      </div>
+
+      <div className="space-y-1 mb-6">
+        <p className="text-[10px] font-black text-primary-green uppercase tracking-widest">Langkah {current + 1} dari {totalSteps}</p>
+        <h4 className="text-base font-black text-slate-900">{step.label}</h4>
+      </div>
+
+      {/* Fields */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {step.fields.map(f => (
+          <div key={f.key} className={f.type === 'textarea' || f.type === 'file' ? 'sm:col-span-2' : ''}>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              {f.label} {f.required && <span className="text-red-500">*</span>}
+            </label>
+            {f.type === 'textarea' ? (
+              <textarea value={answers[f.key] || ''} onChange={e => set(f.key, e.target.value)}
+                placeholder={f.placeholder} rows={3}
+                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-green/30 focus:border-primary-green/50 transition resize-none" />
+            ) : f.type === 'select' ? (
+              <select value={answers[f.key] || ''} onChange={e => set(f.key, e.target.value)}
+                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-green/30 focus:border-primary-green/50 transition bg-white">
+                <option value="">{f.placeholder || `Pilih ${f.label}...`}</option>
+                {(f.options || []).map(o => <option key={o} value={o}>{o}</option>)}
+              </select>
+            ) : f.type === 'radio' ? (
+              <div className="flex flex-wrap gap-3 pt-1">
+                {(f.options || []).map(o => (
+                  <label key={o} className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name={f.key} value={o} checked={answers[f.key] === o}
+                      onChange={e => set(f.key, e.target.value)} className="h-4 w-4 text-primary-green" />
+                    <span className="text-sm text-slate-700">{o}</span>
+                  </label>
+                ))}
+              </div>
+            ) : f.type === 'file' ? (
+              uploadedFiles[f.key] ? (
+                <div className="flex items-center gap-3 border border-emerald-200 bg-emerald-50 rounded-xl px-4 py-3">
+                  {uploadedFiles[f.key].mime_type.startsWith('image/') ? (
+                    <img src={uploadedFiles[f.key].url} alt={f.label}
+                      className="h-12 w-12 object-cover rounded-lg shrink-0 border border-emerald-200" />
+                  ) : (
+                    <div className="h-12 w-12 flex items-center justify-center bg-red-50 border border-red-200 rounded-lg shrink-0">
+                      <FileCheck className="h-5 w-5 text-red-500" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-slate-800 truncate">{uploadedFiles[f.key].original_name}</p>
+                    <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">Berhasil diupload</p>
+                  </div>
+                  <button type="button" onClick={() => removeFile(f.key)}
+                    className="h-7 w-7 flex items-center justify-center rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition shrink-0">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <label className={`flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl p-6 cursor-pointer transition-colors
+                  ${uploadingFields[f.key] ? 'border-blue-200 bg-blue-50 cursor-wait' : 'border-slate-200 hover:border-primary-green/40 hover:bg-slate-50'}`}>
+                  <input type="file" className="hidden" accept="image/*,.pdf"
+                    disabled={uploadingFields[f.key]}
+                    onChange={e => { const file = e.target.files?.[0]; if (file) handleFileUpload(file, f.key, f.label); }} />
+                  {uploadingFields[f.key] ? (
+                    <>
+                      <div className="h-6 w-6 rounded-full border-2 border-blue-400 border-t-transparent animate-spin" />
+                      <span className="text-xs text-blue-500 font-semibold">Mengupload...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-6 w-6 text-slate-400" />
+                      <span className="text-xs text-slate-500 text-center font-medium">{f.placeholder || 'Klik untuk pilih atau seret file ke sini'}</span>
+                      <span className="text-[10px] text-slate-400">JPG, PNG, atau PDF · maks. 5MB</span>
+                    </>
+                  )}
+                </label>
+              )
+            ) : (
+              <input type={f.type} value={answers[f.key] || ''} onChange={e => set(f.key, e.target.value)}
+                placeholder={f.placeholder}
+                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-green/30 focus:border-primary-green/50 transition" />
+            )}
+          </div>
+        ))}
+      </div>
+
+      {error && (
+        <div className="flex items-center gap-2 text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3 text-xs font-semibold">
+          <AlertCircle className="h-4 w-4 shrink-0" /> {error}
+        </div>
+      )}
+
+      {/* Navigation */}
+      <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+        <button onClick={back} disabled={current === 0}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-30 transition">
+          <ArrowLeft className="h-4 w-4" /> Kembali
+        </button>
+        {current < totalSteps - 1 ? (
+          <button onClick={next}
+            className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-primary-green text-white text-xs font-black hover:bg-hover-blue transition">
+            Lanjut <ArrowRight className="h-4 w-4" />
+          </button>
+        ) : (
+          <button onClick={submit} disabled={submitting}
+            className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-primary-green text-white text-xs font-black hover:bg-hover-blue disabled:opacity-50 transition">
+            {submitting ? 'Mengirim...' : 'Kirim Pendaftaran'} <Send className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // Form interface definition
 interface RegistrationData {
@@ -148,11 +380,52 @@ const STEPS = [
 ];
 
 export default function SchoolRegistrationForm() {
+  // ─── Dynamic form config from admin ──────────────────────────────────────────
+  const [dynamicConfig, setDynamicConfig] = useState<DynamicFormConfig | null>(null);
+  const [configLoading, setConfigLoading] = useState(true);
+
+  useEffect(() => {
+    getFormConfig('ppdb-registration').then(data => {
+      if (data?.steps && data.steps.length > 0) setDynamicConfig(data);
+    }).finally(() => setConfigLoading(false));
+  }, []);
+
+  // ─── Static fallback form state ───────────────────────────────────────────────
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<RegistrationData>(initialFormData);
   const [registrationCode, setRegistrationCode] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  // Payment step states
+  const [paymentProof, setPaymentProof] = useState<File | null>(null);
+  const [paymentProofPreview, setPaymentProofPreview] = useState<string | null>(null);
+  const [paymentNotes, setPaymentNotes] = useState('');
+  const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [bankSettings, setBankSettings] = useState<Record<string, string>>({});
+  const [selectedPaymentType, setSelectedPaymentType] = useState<'full' | 'installment'>('full');
+
+  useEffect(() => {
+    getPublicSettings().then(s => {
+      setBankSettings(s);
+      // Default pilihan bayar sesuai mode
+      if (s.ppdb_payment_mode === 'installment') setSelectedPaymentType('installment');
+      else setSelectedPaymentType('full');
+    });
+  }, []);
+
+  // Parse fee items dari settings
+  const ppdbFeeItems: { name: string; amount: number }[] = (() => {
+    try { return JSON.parse(bankSettings.ppdb_payment_items || '[]'); } catch { return []; }
+  })();
+  const ppdbTotal = ppdbFeeItems.reduce((s, f) => s + (f.amount || 0), 0);
+  const ppdbMode = bankSettings.ppdb_payment_mode || 'full';
+  const ppdbInstallmentCount = parseInt(bankSettings.ppdb_installment_count || '2');
+  const ppdbDp = parseInt(bankSettings.ppdb_installment_dp || '0');
+  const ppdbInstallmentPerCicil = ppdbInstallmentCount > 1
+    ? Math.ceil((ppdbTotal - ppdbDp) / (ppdbInstallmentCount - 1)) : ppdbTotal;
+  const fmtRp = (v: number) => new Intl.NumberFormat('id-ID').format(v);
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -337,11 +610,35 @@ export default function SchoolRegistrationForm() {
     }
   };
 
+  const handleProofChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    setPaymentProof(file);
+    setPaymentProofPreview(file ? URL.createObjectURL(file) : null);
+    setPaymentError(null);
+  };
+
+  const handleSubmitPayment = async () => {
+    setIsSubmittingPayment(true);
+    setPaymentError(null);
+    try {
+      await submitPaymentProof(registrationCode, paymentProof, paymentNotes);
+      setCurrentStep(8);
+      window.scrollTo({ top: 200, behavior: 'smooth' });
+    } catch (err) {
+      setPaymentError(err instanceof Error ? err.message : 'Gagal mengirim bukti. Coba lagi.');
+    } finally {
+      setIsSubmittingPayment(false);
+    }
+  };
+
   const handleReset = () => {
     setFormData(initialFormData);
     setRegistrationCode('');
     setCurrentStep(1);
     setValidationError(null);
+    setPaymentProof(null);
+    setPaymentProofPreview(null);
+    setPaymentNotes('');
   };
 
   return (
@@ -372,8 +669,24 @@ export default function SchoolRegistrationForm() {
         </div>
       </div>
 
+      {/* ── Dynamic form (if admin configured) ─────────────────────────────── */}
+      {configLoading ? (
+        <div className="flex justify-center py-24">
+          <div className="h-10 w-10 rounded-full border-4 border-primary-green border-t-transparent animate-spin" />
+        </div>
+      ) : dynamicConfig ? (
+        <div className="mx-auto max-w-3xl px-4 sm:px-6">
+          <div className="bg-white border border-slate-100 rounded-3xl p-6 sm:p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+            {dynamicConfig.description && (
+              <p className="text-sm text-slate-500 mb-6 pb-6 border-b border-slate-100">{dynamicConfig.description}</p>
+            )}
+            <DynamicRegistrationForm config={dynamicConfig!} />
+          </div>
+        </div>
+      ) : (
+
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
-        
+
         {/* 2. Wizard Breadcrumb Step Navigation */}
         <div id="ppdb-wizard-steps-container" className="mb-12 bg-white border border-slate-150 rounded-2xl p-6 shadow-[0_5px_15px_rgba(0,0,0,0.01)]">
           
@@ -410,9 +723,19 @@ export default function SchoolRegistrationForm() {
           </div>
 
           <div className="text-center mt-6 pt-4 border-t border-slate-50">
-            <span id="wizard-current-title" className="text-xs font-black tracking-wider text-emerald-700 uppercase bg-emerald-50 px-4 py-1.5 rounded-full inline-block">
-              Langkah {currentStep} dari 7: {STEPS[currentStep - 1].label}
-            </span>
+            {currentStep <= 6 ? (
+              <span id="wizard-current-title" className="text-xs font-black tracking-wider text-emerald-700 uppercase bg-emerald-50 px-4 py-1.5 rounded-full inline-block">
+                Langkah {currentStep} dari 6: {STEPS[currentStep - 1]?.label ?? ''}
+              </span>
+            ) : currentStep === 7 ? (
+              <span className="text-xs font-black tracking-wider text-amber-700 uppercase bg-amber-50 px-4 py-1.5 rounded-full inline-block">
+                Pembayaran Biaya Pendaftaran
+              </span>
+            ) : (
+              <span className="text-xs font-black tracking-wider text-emerald-700 uppercase bg-emerald-50 px-4 py-1.5 rounded-full inline-block">
+                Pendaftaran Selesai
+              </span>
+            )}
           </div>
         </div>
 
@@ -1066,15 +1389,208 @@ export default function SchoolRegistrationForm() {
             )}
 
             {/* STEP 7: Selesai & Ringkasan */}
+            {/* STEP 7: Pembayaran */}
             {currentStep === 7 && registrationCode && (
-              <div id="step-content-7" className="space-y-8 animate-fade-in block">
+              <div id="step-content-7" className="space-y-6 animate-fade-in">
+
+                {/* Header */}
+                <div className="text-center space-y-2 pb-5 border-b border-slate-100">
+                  <div className="mx-auto h-12 w-12 bg-amber-50 rounded-full border border-amber-200 flex items-center justify-center text-amber-600 shadow-sm">
+                    <Building className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-lg font-black text-[#191654]">Pendaftaran Berhasil — Lanjutkan Pembayaran</h3>
+                  <p className="text-xs text-slate-500 max-w-md mx-auto">
+                    No. Registrasi: <span className="font-black font-mono text-[#019342]">{registrationCode}</span>
+                  </p>
+                  <p className="text-xs text-slate-400">Silakan transfer ke rekening berikut dan unggah bukti pembayaran.</p>
+                </div>
+
+                {/* Rincian Biaya */}
+                {ppdbFeeItems.length > 0 && (
+                  <div className="rounded-2xl border border-slate-200 overflow-hidden">
+                    <div className="bg-slate-50 px-5 py-3 border-b border-slate-100">
+                      <h4 className="text-xs font-black text-slate-700 uppercase tracking-wider">Rincian Biaya PPDB</h4>
+                    </div>
+                    <div className="divide-y divide-slate-100">
+                      {ppdbFeeItems.map((item, i) => (
+                        <div key={i} className="flex items-center justify-between px-5 py-3">
+                          <span className="text-sm text-slate-700">{item.name}</span>
+                          <span className="text-sm font-bold text-slate-800">Rp {fmtRp(item.amount)}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-between px-5 py-3 bg-emerald-50 border-t border-emerald-100">
+                      <span className="text-sm font-black text-emerald-800">Total</span>
+                      <span className="text-base font-black text-emerald-700">Rp {fmtRp(ppdbTotal)}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Pilihan Cara Bayar */}
+                {(ppdbMode === 'full' || ppdbMode === 'both' || ppdbMode === 'installment') && ppdbTotal > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-bold text-slate-700">Pilihan Pembayaran</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {(ppdbMode === 'full' || ppdbMode === 'both') && (
+                        <label className={`flex items-start gap-3 p-4 rounded-2xl border-2 cursor-pointer transition-all ${selectedPaymentType === 'full' ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 hover:border-slate-300'}`}>
+                          <input type="radio" name="payType" value="full" checked={selectedPaymentType === 'full'}
+                            onChange={() => setSelectedPaymentType('full')} className="mt-0.5 h-4 w-4 text-emerald-600" />
+                          <div>
+                            <p className="text-sm font-black text-slate-800">Bayar Lunas</p>
+                            <p className="text-xs text-slate-500 mt-0.5">Satu kali transfer</p>
+                            <p className="text-base font-black text-emerald-700 mt-1">Rp {fmtRp(ppdbTotal)}</p>
+                          </div>
+                        </label>
+                      )}
+                      {(ppdbMode === 'installment' || ppdbMode === 'both') && ppdbInstallmentCount > 1 && (
+                        <label className={`flex items-start gap-3 p-4 rounded-2xl border-2 cursor-pointer transition-all ${selectedPaymentType === 'installment' ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300'}`}>
+                          <input type="radio" name="payType" value="installment" checked={selectedPaymentType === 'installment'}
+                            onChange={() => setSelectedPaymentType('installment')} className="mt-0.5 h-4 w-4 text-blue-600" />
+                          <div>
+                            <p className="text-sm font-black text-slate-800">Cicil {ppdbInstallmentCount}×</p>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                              {ppdbDp > 0 ? `DP Rp ${fmtRp(ppdbDp)} + ${ppdbInstallmentCount - 1}× Rp ${fmtRp(ppdbInstallmentPerCicil)}` : `${ppdbInstallmentCount}× Rp ${fmtRp(Math.ceil(ppdbTotal / ppdbInstallmentCount))}`}
+                            </p>
+                            <p className="text-base font-black text-blue-700 mt-1">Rp {fmtRp(ppdbTotal)}</p>
+                          </div>
+                        </label>
+                      )}
+                    </div>
+
+                    {/* Jadwal cicilan jika pilih installment */}
+                    {selectedPaymentType === 'installment' && ppdbInstallmentCount > 1 && (
+                      <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+                        <p className="text-xs font-black text-blue-700 uppercase tracking-wider mb-2">Jadwal Cicilan</p>
+                        <div className="space-y-1.5">
+                          {Array.from({ length: ppdbInstallmentCount }).map((_, i) => {
+                            const amount = i === 0 && ppdbDp > 0 ? ppdbDp : ppdbInstallmentPerCicil;
+                            return (
+                              <div key={i} className="flex items-center justify-between text-xs">
+                                <span className="text-blue-700 font-semibold">{i === 0 ? 'DP / Cicilan 1' : `Cicilan ${i + 1}`}</span>
+                                <span className="font-black text-blue-800">Rp {fmtRp(amount)}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Info Rekening */}
+                <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 space-y-3">
+                  <h4 className="text-xs font-black text-emerald-800 uppercase tracking-wider">Rekening Tujuan Transfer</h4>
+                  {bankSettings.bank_name || bankSettings.bank_account_number ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                      <div>
+                        <p className="text-[10px] text-emerald-600 font-bold uppercase">Bank</p>
+                        <p className="font-black text-slate-800">{bankSettings.bank_name || '—'}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-emerald-600 font-bold uppercase">No. Rekening</p>
+                        <p className="font-black font-mono text-slate-800 text-base tracking-wider">{bankSettings.bank_account_number || '—'}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-emerald-600 font-bold uppercase">Atas Nama</p>
+                        <p className="font-black text-slate-800">{bankSettings.bank_account_name || '—'}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-500 italic">Info rekening belum dikonfigurasi. Hubungi Sekretariat PPDB untuk informasi pembayaran.</p>
+                  )}
+                  {selectedPaymentType === 'full' && ppdbTotal > 0 && (
+                    <div className="pt-2 border-t border-emerald-100">
+                      <p className="text-xs text-emerald-700 font-semibold">
+                        Transfer sebesar: <span className="font-black text-base">Rp {fmtRp(ppdbTotal)}</span>
+                      </p>
+                    </div>
+                  )}
+                  {selectedPaymentType === 'installment' && ppdbDp > 0 && (
+                    <div className="pt-2 border-t border-emerald-100">
+                      <p className="text-xs text-emerald-700 font-semibold">
+                        Transfer DP sekarang: <span className="font-black text-base">Rp {fmtRp(ppdbDp)}</span>
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Upload Bukti */}
+                <div className="space-y-4">
+                  <h4 className="text-sm font-bold text-slate-700">Unggah Bukti Pembayaran</h4>
+
+                  <label className={`flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-2xl p-8 cursor-pointer transition-colors ${paymentProof ? 'border-emerald-300 bg-emerald-50/50' : 'border-slate-200 hover:border-slate-300 bg-slate-50/50'}`}>
+                    <input type="file" className="hidden" accept="image/*,.pdf" onChange={handleProofChange} />
+                    {paymentProofPreview && paymentProof?.type.startsWith('image/') ? (
+                      <img src={paymentProofPreview} alt="Preview" className="max-h-40 rounded-lg object-contain shadow" />
+                    ) : paymentProof ? (
+                      <div className="flex items-center gap-2 text-emerald-700">
+                        <FileText className="h-8 w-8" />
+                        <span className="text-sm font-semibold">{paymentProof.name}</span>
+                      </div>
+                    ) : (
+                      <>
+                        <Camera className="h-10 w-10 text-slate-400" />
+                        <div className="text-center">
+                          <p className="text-sm font-bold text-slate-600">Klik untuk unggah bukti transfer</p>
+                          <p className="text-xs text-slate-400 mt-0.5">JPG, PNG, atau PDF · Maks. 8 MB</p>
+                        </div>
+                      </>
+                    )}
+                  </label>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 mb-1">Catatan (opsional)</label>
+                    <textarea
+                      value={paymentNotes}
+                      onChange={e => setPaymentNotes(e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300"
+                      rows={2}
+                      placeholder="Contoh: Transfer via BCA mobile, sudah transfer Rp 500.000..."
+                    />
+                  </div>
+                </div>
+
+                {paymentError && (
+                  <div className="flex items-center gap-2 text-red-700 bg-red-50 border border-red-100 rounded-xl px-4 py-3 text-xs font-semibold">
+                    <AlertCircle className="h-4 w-4 shrink-0" /> {paymentError}
+                  </div>
+                )}
+
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={handleSubmitPayment}
+                    disabled={isSubmittingPayment}
+                    className="flex-1 px-6 py-3.5 rounded-xl bg-[#019342] hover:bg-[#191654] disabled:opacity-60 text-white text-xs font-black tracking-widest uppercase transition-all shadow flex items-center justify-center gap-2"
+                  >
+                    {isSubmittingPayment ? (
+                      <><div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /><span>Mengirim...</span></>
+                    ) : (
+                      <><Send className="h-4 w-4" /><span>Kirim Bukti Pembayaran</span></>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setCurrentStep(8); }}
+                    className="px-5 py-3.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold tracking-wide transition-colors"
+                  >
+                    Lewati, Kirim Nanti
+                  </button>
+                </div>
+
+              </div>
+            )}
+
+            {/* STEP 8: Menunggu Verifikasi */}
+            {currentStep === 8 && registrationCode && (
+              <div id="step-content-8" className="space-y-8 animate-fade-in block">
                 <div className="text-center space-y-3 pb-6 border-b border-slate-100">
                   <div className="mx-auto h-14 w-14 bg-emerald-50 rounded-full border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-sm animate-bounce-slow">
                     <CheckCircle className="h-8 w-8" />
                   </div>
-                  <h3 className="text-xl font-black text-[#191654] tracking-tight">Formulir Pendaftaran Berhasil Disubmit!</h3>
+                  <h3 className="text-xl font-black text-[#191654] tracking-tight">Pendaftaran Berhasil Dikirim!</h3>
                   <p className="text-xs text-slate-400 font-semibold max-w-md mx-auto">
-                    Data calon peserta didik sukses diproses dan disimpan di Server Pendaftaran Terpusat SMA Al-Ghazaly Bogor.
+                    Data dan bukti pembayaran sudah diterima. Admin akan memeriksa dan mengonfirmasi pendaftaran Anda.
                   </p>
                 </div>
 
@@ -1157,11 +1673,15 @@ export default function SchoolRegistrationForm() {
                       </div>
 
                       <div className="space-y-1">
-                        <h5 className="text-xs font-black text-[#191654]">Langkah Selanjutnya yang Wajib Dilakukan:</h5>
-                        <ol className="list-decimal list-inside text-[11px] text-slate-505 font-semibold space-y-1 leading-relaxed">
-                          <li>Hubungi Sekretariat PPDB via WhatsApp dengan menunjukkan Nomor Registrasi di atas untuk diverifikasi instan.</li>
-                          <li>Siapkan fotokopi Akta Kelahiran, Kartu Keluarga (KK), dan Ijazah / SKHUN SMP (legalisir asli) masing-masing 2 lembar.</li>
-                          <li>Bawalah seluruh berkas fisik tersebut bersama cetak bukti pendaftaran ini langsung ke Ruang Administrasi/TU sesuai arahan panitia.</li>
+                        <h5 className="text-xs font-black text-[#191654]">Status Pendaftaran Anda:</h5>
+                        <div className="flex items-center gap-2 text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 text-xs font-semibold">
+                          <Clock className="h-4 w-4 shrink-0" />
+                          <span>Menunggu verifikasi pembayaran dan konfirmasi admin. Harap tunggu 1×24 jam kerja.</span>
+                        </div>
+                        <ol className="list-decimal list-inside text-[11px] text-slate-505 font-semibold space-y-1 leading-relaxed mt-2">
+                          <li>Admin akan memeriksa bukti pembayaran yang Anda kirimkan.</li>
+                          <li>Setelah terverifikasi, pendaftaran akan dikonfirmasi dan Anda akan dihubungi via WhatsApp/email.</li>
+                          <li>Siapkan berkas fisik: Akta Kelahiran, KK, dan Ijazah/SKHUN SMP (legalisir asli) 2 lembar untuk diserahkan ke sekolah.</li>
                         </ol>
                       </div>
                     </div>
@@ -1195,7 +1715,7 @@ export default function SchoolRegistrationForm() {
             )}
 
             {/* Step Wizard Action Footer */}
-            {currentStep < 7 && (
+            {currentStep < 7 && currentStep >= 1 && (
               <div id="wizard-buttons-footer" className="border-t border-slate-100 pt-8 flex items-center justify-between">
                 
                 <button
@@ -1259,6 +1779,8 @@ export default function SchoolRegistrationForm() {
         </div>
 
       </div>
+
+      )} {/* end ternary: no dynamic config → show static form */}
 
     </div>
   );

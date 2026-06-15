@@ -10,23 +10,13 @@ class Student extends Model
     protected $primaryKey = 'student_id';
 
     protected $fillable = [
-        'user_id',
-        'registration_id',
-        'nis',
-        'nisn',
-        'name',
-        'gender',
-        'birth_place',
-        'birth_date',
-        'address',
-        'phone',
-        'parent_name',
-        'parent_phone',
-        'previous_school',
-        'academic_year',
-        'grade_level',
-        'major',
-        'status',
+        'user_id', 'registration_id',
+        'nis', 'nisn', 'nik',
+        'name', 'gender', 'birth_place', 'birth_date',
+        'address', 'phone', 'email', 'photo',
+        'parent_name', 'parent_phone',
+        'previous_school', 'academic_year', 'grade_level', 'major',
+        'status', 'notes', 'order', 'is_active',
     ];
 
     protected $casts = [

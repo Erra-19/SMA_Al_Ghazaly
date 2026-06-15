@@ -24,7 +24,7 @@
                 <template x-if="items.length === 0">
                     <tr><td colspan="4" class="td text-center text-gray-400 py-10">Belum ada kategori.</td></tr>
                 </template>
-                <template x-for="item in items" :key="item.id">
+                <template x-for="item in items" :key="item.category_id ?? item.id">
                     <tr class="adm-tr">
                         <td class="td font-medium text-gray-900" x-text="item.name"></td>
                         <td class="td text-gray-500 text-xs" x-text="item.slug"></td>

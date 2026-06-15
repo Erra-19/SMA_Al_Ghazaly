@@ -15,7 +15,10 @@ import {
   Heart,
   Calendar
 } from 'lucide-react';
-import { getAlbums, getProfileData } from '../api';
+import { getAlbums, getAlbum, getProfileData } from '../api';
+
+type MediaItem = { id: string; url: string; filename: string; mime_type: string };
+type AlbumDetail = { id: string; slug: string; title: string; description: string; cover: string; medias: MediaItem[] };
 
 export default function SchoolProfile() {
   // Activity Slider State
@@ -23,6 +26,9 @@ export default function SchoolProfile() {
   const [profilePage, setProfilePage] = useState<any>(null);
   const [siteSettings, setSiteSettings] = useState<Record<string, string>>({});
   const [galleryItems, setGalleryItems] = useState<any[]>([]);
+  const [openAlbum, setOpenAlbum] = useState<AlbumDetail | null>(null);
+  const [albumLoading, setAlbumLoading] = useState(false);
+  const [lightbox, setLightbox] = useState<{ medias: MediaItem[]; index: number } | null>(null);
 
   useEffect(() => {
     getProfileData()
@@ -33,6 +39,19 @@ export default function SchoolProfile() {
       .catch(() => {});
     getAlbums().then(setGalleryItems).catch(() => setGalleryItems([]));
   }, []);
+
+  const handleOpenAlbum = async (album: any) => {
+    if (!album?.slug) return;
+    setAlbumLoading(true);
+    try {
+      const detail = await getAlbum(album.slug);
+      setOpenAlbum(detail);
+    } catch {
+      setOpenAlbum({ id: album.id, slug: album.slug, title: album.title, description: album.description || '', cover: album.image || '', medias: [] });
+    } finally {
+      setAlbumLoading(false);
+    }
+  };
 
   const gallerySlides = [
     {
@@ -87,7 +106,7 @@ export default function SchoolProfile() {
   const stats = [
     {
       id: "stat-pengajar",
-      value: "35+",
+      value: siteSettings.stat_total_teachers || "35+",
       label: "Total Pengajar",
       desc: "Guru tersertifikasi & berkompeten",
       icon: Users,
@@ -95,7 +114,7 @@ export default function SchoolProfile() {
     },
     {
       id: "stat-siswa-baru",
-      value: "160+",
+      value: siteSettings.stat_total_new_students || "160+",
       label: "Total Siswa Baru",
       desc: "Kuota pendaftaran per tahun",
       icon: GraduationCap,
@@ -103,7 +122,7 @@ export default function SchoolProfile() {
     },
     {
       id: "stat-siswa-existing",
-      value: "480+",
+      value: siteSettings.stat_total_students || "480+",
       label: "Total Siswa Existing",
       desc: "Siswa aktif reguler & boarding",
       icon: BookOpen,
@@ -111,7 +130,7 @@ export default function SchoolProfile() {
     },
     {
       id: "stat-alumni",
-      value: "1.200+",
+      value: siteSettings.stat_total_alumni || "1.200+",
       label: "Total Alumni",
       desc: "Tersebar di PTN & PTS Favorit",
       icon: Award,
@@ -307,18 +326,25 @@ export default function SchoolProfile() {
                   transition={{ duration: 0.4 }}
                   className="w-full h-full relative"
                 >
-                  <img 
-                    src={galleryItems[currentSlide]?.image} 
-                    alt={galleryItems[currentSlide]?.title} 
+                  <img
+                    src={galleryItems[currentSlide]?.image}
+                    alt={galleryItems[currentSlide]?.title}
                     className="w-full h-full object-cover"
                     referrerPolicy="no-referrer"
                   />
-                  
+
                   {/* Subtle black overlay shadow */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
-                  
+
+                  {/* Clickable overlay — open album */}
+                  <button
+                    onClick={() => handleOpenAlbum(galleryItems[currentSlide])}
+                    className="absolute inset-0 w-full h-full cursor-pointer"
+                    aria-label="Lihat foto album"
+                  />
+
                   {/* Bottom Text Captions */}
-                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 text-white space-y-2">
+                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 text-white space-y-2 pointer-events-none">
                     <span className="inline-block px-2.5 py-1 rounded bg-[#019342] text-[9px] font-black uppercase tracking-widest mb-1 text-white">
                       {galleryItems[currentSlide]?.badge}
                     </span>
@@ -328,6 +354,10 @@ export default function SchoolProfile() {
                     <p className="text-[11px] md:text-xs text-white/80 leading-relaxed font-semibold max-w-xl line-clamp-2 md:line-clamp-none">
                       {galleryItems[currentSlide]?.description}
                     </p>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-black text-white/70 mt-1">
+                      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                      Klik untuk lihat foto
+                    </span>
                   </div>
                 </motion.div>
               </AnimatePresence>
@@ -348,9 +378,9 @@ export default function SchoolProfile() {
 
             {/* Float left & right button triggers */}
             <div className="absolute top-1/2 -translate-y-1/2 -left-4 md:-left-6 z-10">
-              <button 
+              <button
                 id="btn-prev-slide"
-                onClick={handlePrevSlide}
+                onClick={(e) => { e.stopPropagation(); handlePrevSlide(); }}
                 className="h-10 w-10 rounded-full bg-white hover:bg-slate-100 hover:scale-105 active:scale-95 transition-all text-slate-800 shadow-md flex items-center justify-center border border-slate-200"
               >
                 <ChevronLeft className="h-5 w-5" />
@@ -358,9 +388,9 @@ export default function SchoolProfile() {
             </div>
 
             <div className="absolute top-1/2 -translate-y-1/2 -right-4 md:-right-6 z-10">
-              <button 
+              <button
                 id="btn-next-slide"
-                onClick={handleNextSlide}
+                onClick={(e) => { e.stopPropagation(); handleNextSlide(); }}
                 className="h-10 w-10 rounded-full bg-white hover:bg-slate-100 hover:scale-105 active:scale-95 transition-all text-slate-800 shadow-md flex items-center justify-center border border-slate-200"
               >
                 <ChevronRight className="h-5 w-5" />
@@ -369,7 +399,7 @@ export default function SchoolProfile() {
 
             <div className="text-center mt-3">
               <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                OSIS &amp; MPK SMA Al-Ghazaly • {currentSlide + 1} dari {gallerySlides.length}
+                SMA Al-Ghazaly • {currentSlide + 1} dari {galleryItems.length}
               </span>
             </div>
           </div>
@@ -426,6 +456,69 @@ export default function SchoolProfile() {
         </div>
 
       </div>
+
+      {/* Album Detail Modal */}
+      {(openAlbum || albumLoading) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOpenAlbum(null)} />
+          <div className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+              <div>
+                <h3 className="font-bold text-slate-800 text-base">{openAlbum?.title ?? '...'}</h3>
+                {openAlbum?.description && <p className="text-xs text-slate-400 mt-0.5">{openAlbum.description}</p>}
+              </div>
+              <button onClick={() => setOpenAlbum(null)} className="p-1.5 rounded-full hover:bg-slate-100 transition">
+                <Calendar className="h-4 w-4 text-slate-400" style={{ display: 'none' }} />
+                <svg className="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-5">
+              {albumLoading ? (
+                <div className="flex justify-center py-16"><div className="h-7 w-7 rounded-full border-2 border-[#019342] border-t-transparent animate-spin" /></div>
+              ) : openAlbum && openAlbum.medias.length === 0 ? (
+                <div className="flex flex-col items-center py-16 text-slate-400">
+                  <Heart className="h-10 w-10 mb-2 opacity-20" />
+                  <p className="text-xs font-semibold">Album ini belum memiliki foto.</p>
+                </div>
+              ) : openAlbum ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {openAlbum.medias.map((media, i) => (
+                    <button key={media.id} onClick={() => setLightbox({ medias: openAlbum.medias, index: i })}
+                      className="aspect-square rounded-xl overflow-hidden border border-slate-100 bg-slate-50 hover:opacity-90 transition-opacity">
+                      <img src={media.url} alt={media.filename} className="w-full h-full object-cover hover:scale-105 transition-transform duration-200" />
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+            <div className="px-6 py-3 border-t border-slate-100 shrink-0 text-center">
+              <p className="text-[10px] text-slate-400 font-semibold">{openAlbum ? `${openAlbum.medias.length} foto` : ''}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Lightbox */}
+      {lightbox && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95">
+          <button onClick={() => setLightbox(null)} className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition">
+            <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+          <button onClick={() => setLightbox(p => p ? { ...p, index: (p.index - 1 + p.medias.length) % p.medias.length } : null)} className="absolute left-3 p-2 rounded-full bg-white/10 hover:bg-white/20 transition">
+            <ChevronLeft className="h-6 w-6 text-white" />
+          </button>
+          <button onClick={() => setLightbox(p => p ? { ...p, index: (p.index + 1) % p.medias.length } : null)} className="absolute right-3 p-2 rounded-full bg-white/10 hover:bg-white/20 transition">
+            <ChevronRight className="h-6 w-6 text-white" />
+          </button>
+          <img src={lightbox.medias[lightbox.index].url} alt={lightbox.medias[lightbox.index].filename} className="max-w-[90vw] max-h-[88vh] object-contain rounded-xl" />
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+            {lightbox.medias.map((_, i) => (
+              <button key={i} onClick={() => setLightbox(p => p ? { ...p, index: i } : null)}
+                className={`h-1.5 rounded-full transition-all ${i === lightbox.index ? 'w-4 bg-white' : 'w-1.5 bg-white/40'}`} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
